@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0482135D-405D-4F90-8542-09C3E64A1AA2}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xmf2.NavigationGraph.Droid</RootNamespace>
+    <AssemblyName>Xmf2.NavigationGraph.Droid</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
+    <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Android" />
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Factories\ActivityViewFactory.cs" />
+    <Compile Include="Factories\DialogFragmentViewFactory.cs" />
+    <Compile Include="Factories\FragmentViewFactory.cs" />
+    <Compile Include="Factories\ViewFactory.cs" />
+    <Compile Include="InnerStacks\ActivityInnerStack.cs" />
+    <Compile Include="InnerStacks\DialogFragmentInnerStack.cs" />
+    <Compile Include="InnerStacks\fragmentInnerStack.cs" />
+    <Compile Include="InnerStacks\InnerStack.cs" />
+    <Compile Include="InnerStacks\InnerStackExtensions.cs" />
+    <Compile Include="Interfaces\IDeferredNavigationAction.cs" />
+    <Compile Include="Interfaces\IFragmentActivity.cs" />
+    <Compile Include="Interfaces\IFragmentInnerStack.cs" />
+    <Compile Include="Interfaces\IRegistrationPresenterService.cs" />
+    <Compile Include="Interfaces\IScreenView.cs" />
+    <Compile Include="NavigationParameterContainer.cs" />
+    <Compile Include="NavigationPresenter.cs" />
+    <None Include="NavigationRegistrationHandler.cs" />
+    <Compile Include="NavigationStack.cs" />
+    <Compile Include="Operations\ActivityPopOperation.cs" />
+    <Compile Include="Operations\ActivityPushOperation.cs" />
+    <Compile Include="Operations\FragmentPopOperation.cs" />
+    <Compile Include="Operations\FragmentPushOperation.cs" />
+    <Compile Include="Operations\MergedActivityPopPushOperation.cs" />
+    <Compile Include="Operations\MergedFragmentPopPushOperation.cs" />
+    <Compile Include="Operations\MergedPopPushOperation.cs" />
+    <Compile Include="Operations\Operation.cs" />
+    <Compile Include="Operations\PopOperation.cs" />
+    <Compile Include="Operations\PushOperation.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PushInformation.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
+    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="27.0.2.1" />
+    <PackageReference Include="Xmf2.DisposableExtensions" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xmf2.NavigationGraph.Core\Xmf2.NavigationGraph.Core.csproj">
+      <Project>{94b4d647-63ed-4377-a2d8-f530f0580812}</Project>
+      <Name>Xmf2.NavigationGraph.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+</Project>

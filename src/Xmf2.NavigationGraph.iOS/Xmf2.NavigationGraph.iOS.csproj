@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6F01CCBC-0E74-427F-8F60-8E19DC4476A0}</ProjectGuid>
+    <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Xmf2.NavigationGraph.iOS</RootNamespace>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+    <AssemblyName>Xmf2.NavigationGraph.iOS</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Xamarin.iOS" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Factories\ControllerInformation.cs" />
+    <Compile Include="Factories\PushInformation.cs" />
+    <Compile Include="InnerStacks\InnerStack.cs" />
+    <Compile Include="InnerStacks\ModalControllerInnerStack.cs" />
+    <Compile Include="InnerStacks\NavigationControllerInnerStack.cs" />
+    <Compile Include="InnerStacks\SimpleControllerInnerStack.cs" />
+    <Compile Include="Interfaces\IRegistrationPresenterService.cs" />
+    <Compile Include="NavigationPresenter.cs" />
+    <None Include="NavigationRegistrationHandler.cs" />
+    <Compile Include="NavigationStack.cs" />
+    <Compile Include="Operations\MergedPopPushNavigationControllerOperation.cs" />
+    <Compile Include="Operations\MergedPopPushOperation.cs" />
+    <Compile Include="Operations\ModalControllerPopOperation.cs" />
+    <Compile Include="Operations\ModalControllerPushOperation.cs" />
+    <Compile Include="Operations\NavigationControllerPopOperation.cs" />
+    <Compile Include="Operations\NavigationControllerPushOperation.cs" />
+    <Compile Include="Operations\PopOperation.cs" />
+    <Compile Include="Operations\PushOperation.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewCreator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xmf2.NavigationGraph.Core\Xmf2.NavigationGraph.Core.csproj">
+      <Project>{94b4d647-63ed-4377-a2d8-f530f0580812}</Project>
+      <Name>Xmf2.NavigationGraph.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Xmf2.DisposableExtensions" Version="1.0.0" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+</Project>
