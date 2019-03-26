@@ -49,7 +49,7 @@
     <Compile Include="Factories\ViewFactory.cs" />
     <Compile Include="InnerStacks\ActivityInnerStack.cs" />
     <Compile Include="InnerStacks\DialogFragmentInnerStack.cs" />
-    <Compile Include="InnerStacks\fragmentInnerStack.cs" />
+    <Compile Include="InnerStacks\FragmentInnerStack.cs" />
     <Compile Include="InnerStacks\InnerStack.cs" />
     <Compile Include="InnerStacks\InnerStackExtensions.cs" />
     <Compile Include="Interfaces\IDeferredNavigationAction.cs" />
@@ -57,6 +57,7 @@
     <Compile Include="Interfaces\IFragmentInnerStack.cs" />
     <Compile Include="Interfaces\IRegistrationPresenterService.cs" />
     <Compile Include="Interfaces\IScreenView.cs" />
+    <Compile Include="NavigationConstants.cs" />
     <Compile Include="NavigationParameterContainer.cs" />
     <Compile Include="NavigationPresenter.cs" />
     <None Include="NavigationRegistrationHandler.cs" />

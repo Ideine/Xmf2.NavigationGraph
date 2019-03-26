@@ -14,37 +14,37 @@ using Xmf2.NavigationGraph.iOS.Operations;
 
 namespace Xmf2.NavigationGraph.iOS
 {
-	public class NavigationPresenter : IPresenterService, IRegistrationPresenterService
+	public class NavigationPresenter<TViewModel> : IPresenterService<TViewModel>, IRegistrationPresenterService<TViewModel> where TViewModel : IViewModel
 	{
-		private readonly Dictionary<ScreenDefinition, ControllerInformation> _factoryAssociation = new Dictionary<ScreenDefinition, ControllerInformation>();
+		private readonly Dictionary<ScreenDefinition<TViewModel>, ControllerInformation<TViewModel>> _factoryAssociation = new Dictionary<ScreenDefinition<TViewModel>, ControllerInformation<TViewModel>>();
 		private readonly UIWindow _window;
-		private readonly NavigationStack _navigationStack = new NavigationStack();
+		private readonly NavigationStack<TViewModel> _navigationStack = new NavigationStack<TViewModel>();
 
 		public NavigationPresenter(UIWindow window)
 		{
 			_window = window;
 		}
 
-		public void Associate(ScreenDefinition screenDefinition, ViewCreator controllerFactory)
+		public void Associate(ScreenDefinition<TViewModel> screenDefinition, ViewCreator<TViewModel> controllerFactory)
 		{
-			_factoryAssociation[screenDefinition] = new ControllerInformation(controllerFactory, isModal: false);
+			_factoryAssociation[screenDefinition] = new ControllerInformation<TViewModel>(controllerFactory, isModal: false);
 		}
 
-		public void AssociateModal(ScreenDefinition screenDefinition, ViewCreator controllerFactory)
+		public void AssociateModal(ScreenDefinition<TViewModel> screenDefinition, ViewCreator<TViewModel> controllerFactory)
 		{
-			_factoryAssociation[screenDefinition] = new ControllerInformation(controllerFactory, isModal: true);
+			_factoryAssociation[screenDefinition] = new ControllerInformation<TViewModel>(controllerFactory, isModal: true);
 		}
 
-		public async Task UpdateNavigation(NavigationOperation navigationOperation, INavigationInProgress navigationInProgress)
+		public async Task UpdateNavigation(NavigationOperation<TViewModel> navigationOperation, INavigationInProgress navigationInProgress)
 		{
 			if (navigationOperation.Pushes.Count == 0 && navigationOperation.Pops.Count == 0)
 			{
 				return;
 			}
 
-			List<PushInformation> controllersToPush = navigationOperation.Pushes.ConvertAll(x => new PushInformation(_factoryAssociation[x.Screen], x.Instance));
+			List<PushInformation<TViewModel>> controllersToPush = navigationOperation.Pushes.ConvertAll(x => new PushInformation<TViewModel>(_factoryAssociation[x.Screen], x.Instance));
 
-			foreach (PushAction push in navigationOperation.Pushes)
+			foreach (var push in navigationOperation.Pushes)
 			{
 				await push.Instance.GetViewModel(""); //TODO: add route here
 			}
@@ -76,7 +76,7 @@ namespace Xmf2.NavigationGraph.iOS
 				// lines below could be commented if we encounter issues with viewmodel disposing
 				callbackActionWaiter.Add(() =>
 				{
-					foreach (PopAction pop in navigationOperation.Pops)
+					foreach (PopAction<TViewModel> pop in navigationOperation.Pops)
 					{
 						pop.Instance.ViewModelInstance?.DispatchSafeDispose();
 					}

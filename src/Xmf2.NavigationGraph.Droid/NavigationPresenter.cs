@@ -26,32 +26,15 @@ namespace Xmf2.NavigationGraph.Droid
      *  stackBuilder.addNextIntent(intentEmailView);
 	 */
 
-	public class NavigationPresenter : IPresenterService, IRegistrationPresenterService
+	public class NavigationPresenter<TViewModel> : IPresenterService<TViewModel>, IRegistrationPresenterService<TViewModel> where TViewModel : IViewModel
 	{
-		public const string FRAGMENT_START_PARAMETER_CODE = nameof(FRAGMENT_START_PARAMETER_CODE);
-		public const string VIEWMODEL_LINK_PARAMETER_CODE = nameof(VIEWMODEL_LINK_PARAMETER_CODE);
-
-		private readonly Dictionary<ScreenDefinition, ViewFactory> _factoryAssociation = new Dictionary<ScreenDefinition, ViewFactory>();
-		private readonly NavigationStack _navigationStack;
+		private readonly Dictionary<ScreenDefinition<TViewModel>, ViewFactory> _factoryAssociation = new Dictionary<ScreenDefinition<TViewModel>, ViewFactory>();
+		private readonly NavigationStack<TViewModel> _navigationStack;
 		private ActivityViewFactory _defaultFragmentHost;
 
-		public NavigationPresenter(IViewModelLocatorService viewModelLocatorService)
+		public NavigationPresenter(IViewModelLocatorService<TViewModel> viewModelLocatorService)
 		{
-			_navigationStack = new NavigationStack(viewModelLocatorService);
-		}
-
-		internal static Activity CurrentActivity
-		{
-			get
-			{
-				var result = CrossCurrentActivity.Current.Activity;
-				if (result is null)
-				{
-					throw new InvalidOperationException("Can not resolve current activity");
-				}
-
-				return result;
-			}
+			_navigationStack = new NavigationStack<TViewModel>(viewModelLocatorService);
 		}
 
 		public void RegisterDefaultFragmentHost<TActivity>(bool shouldClearHistory = false) where TActivity : AppCompatActivity
@@ -59,12 +42,12 @@ namespace Xmf2.NavigationGraph.Droid
 			_defaultFragmentHost = new ActivityViewFactory(typeof(TActivity), shouldClearHistory);
 		}
 
-		public void AssociateActivity<TActivity>(ScreenDefinition screenDefinition, bool shouldClearHistory = false) where TActivity : AppCompatActivity
+		public void AssociateActivity<TActivity>(ScreenDefinition<TViewModel> screenDefinition, bool shouldClearHistory = false) where TActivity : AppCompatActivity
 		{
 			_factoryAssociation[screenDefinition] = new ActivityViewFactory(typeof(TActivity), shouldClearHistory);
 		}
 
-		public void AssociateFragment<TFragment>(ScreenDefinition screenDefinition, Func<TFragment> fragmentCreator, Type hostActivityType = null, bool? shouldClearHistory = null)
+		public void AssociateFragment<TFragment>(ScreenDefinition<TViewModel> screenDefinition, Func<TFragment> fragmentCreator, Type hostActivityType = null, bool? shouldClearHistory = null)
 			where TFragment : Fragment
 		{
 			FragmentViewFactory res;
@@ -85,14 +68,14 @@ namespace Xmf2.NavigationGraph.Droid
 			_factoryAssociation[screenDefinition] = res;
 		}
 
-		public void AssociateFragment<TFragmentHost, TFragment>(ScreenDefinition screenDefinition, Func<TFragment> fragmentCreator)
+		public void AssociateFragment<TFragmentHost, TFragment>(ScreenDefinition<TViewModel> screenDefinition, Func<TFragment> fragmentCreator)
 			where TFragmentHost : AppCompatActivity
 			where TFragment : Fragment
 		{
 			AssociateFragment(screenDefinition, fragmentCreator, typeof(TFragmentHost));
 		}
 
-		public void AssociateDialogFragment<TDialogFragment>(ScreenDefinition screenDefinition, Func<TDialogFragment> fragmentCreator, Type hostActivityType = null, bool? shouldClearHistory = null)
+		public void AssociateDialogFragment<TDialogFragment>(ScreenDefinition<TViewModel> screenDefinition, Func<TDialogFragment> fragmentCreator, Type hostActivityType = null, bool? shouldClearHistory = null)
 			where TDialogFragment : DialogFragment
 		{
 			DialogFragmentViewFactory res;
@@ -113,21 +96,21 @@ namespace Xmf2.NavigationGraph.Droid
 			_factoryAssociation[screenDefinition] = res;
 		}
 
-		public void AssociateDialogFragment<TFragmentHost, TDialogFragment>(ScreenDefinition screenDefinition, Func<TDialogFragment> fragmentCreator)
+		public void AssociateDialogFragment<TFragmentHost, TDialogFragment>(ScreenDefinition<TViewModel> screenDefinition, Func<TDialogFragment> fragmentCreator)
 			where TFragmentHost : AppCompatActivity
 			where TDialogFragment : DialogFragment
 		{
 			AssociateDialogFragment(screenDefinition, fragmentCreator, typeof(TFragmentHost));
 		}
 
-		public async Task UpdateNavigation(NavigationOperation navigationOperation, INavigationInProgress navigationInProgress)
+		public async Task UpdateNavigation(NavigationOperation<TViewModel> navigationOperation, INavigationInProgress navigationInProgress)
 		{
 			if (navigationOperation.Pushes.Count == 0 && navigationOperation.Pops.Count == 0)
 			{
 				return;
 			}
 
-			var controllersToPush = navigationOperation.Pushes.ConvertAll(x => new PushInformation(_factoryAssociation[x.Screen], x.Instance));
+			var controllersToPush = navigationOperation.Pushes.ConvertAll(x => new PushInformation<TViewModel>(_factoryAssociation[x.Screen], x.Instance));
 
 			foreach (var push in navigationOperation.Pushes)
 			{
@@ -151,12 +134,12 @@ namespace Xmf2.NavigationGraph.Droid
 
 			navigationInProgress.Commit();
 
-			CurrentActivity.RunOnUiThread(() => _navigationStack.ApplyActions(navigationOperation.Pops.Count, controllersToPush));
+			CrossCurrentActivity.Current.Activity.RunOnUiThread(() => _navigationStack.ApplyActions(navigationOperation.Pops.Count, controllersToPush));
 		}
 
 		public void CloseApp()
 		{
-			CurrentActivity.Finish();
+			CrossCurrentActivity.Current.Activity.Finish();
 		}
 	}
 }

@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid.Operations;
 
 namespace Xmf2.NavigationGraph.Droid.InnerStacks
 {
-	internal class ActivityInnerStack : InnerStack
+	internal class ActivityInnerStack<TViewModel> : InnerStack<TViewModel> where TViewModel : IViewModel
 	{
 		public bool ActivityIsOnlyAFragmentContainer { get; }
 
@@ -13,9 +14,9 @@ namespace Xmf2.NavigationGraph.Droid.InnerStacks
 
 		public bool ShouldClearHistory { get; }
 
-		public List<InnerStack> FragmentStack { get; } = new List<InnerStack>();
+		public List<InnerStack<TViewModel>> FragmentStack { get; } = new List<InnerStack<TViewModel>>();
 
-		public ActivityInnerStack(NavigationStack navigationStack, Type activityType, bool activityIsOnlyAFragmentContainer, bool shouldClearHistory) : base(navigationStack)
+		public ActivityInnerStack(NavigationStack<TViewModel> navigationStack, Type activityType, bool activityIsOnlyAFragmentContainer, bool shouldClearHistory) : base(navigationStack)
 		{
 			ActivityType = activityType;
 			ActivityIsOnlyAFragmentContainer = activityIsOnlyAFragmentContainer;
@@ -39,15 +40,15 @@ namespace Xmf2.NavigationGraph.Droid.InnerStacks
 		{
 			FragmentStack.Clear();
 			//TODO: do we really want to finish the activity if it's the last one of the app ?
-			return new ActivityPopOperation(this);
+			return new ActivityPopOperation<TViewModel>(this);
 		}
 
-		public override PopOperation AsSpecificPopOperation(InnerStack child)
+		public override PopOperation AsSpecificPopOperation(InnerStack<TViewModel> child)
 		{
-			if (child is fragmentInnerStack fragmentInnerStack)
+			if (child is FragmentInnerStack<TViewModel> fragmentInnerStack)
 			{
 				FragmentStack.RemoveAt(FragmentStack.Count - 1);
-				return new FragmentPopOperation(this)
+				return new FragmentPopOperation<TViewModel>(this)
 				{
 					FragmentStacksToPop =
 					{
@@ -61,20 +62,19 @@ namespace Xmf2.NavigationGraph.Droid.InnerStacks
 
 		public override PopOperation AsSpecificPopOperation(int count)
 		{
-			FragmentPopOperation result = new FragmentPopOperation(this);
-			for (int i = 0, index = FragmentStack.Count - 1; i < count; ++i, index--)
+			var result = new FragmentPopOperation<TViewModel>(this);
+			for (int i = 0, index = FragmentStack.Count - 1 ; i < count ; ++i, index--)
 			{
-				if (FragmentStack[index] is DialogFragmentInnerStack dialogFragmentInnerStack)
+				switch (FragmentStack[index])
 				{
-					result.FragmentStacksToPop.Add(dialogFragmentInnerStack);
-				}
-				else if (FragmentStack[index] is fragmentInnerStack fragmentInnerStack)
-				{
-					result.FragmentStacksToPop.Add(fragmentInnerStack);
-				}
-				else
-				{
-					throw new InvalidOperationException("Specific pop operation on unsupported child type");
+					case DialogFragmentInnerStack<TViewModel> dialogFragmentInnerStack:
+						result.FragmentStacksToPop.Add(dialogFragmentInnerStack);
+						break;
+					case FragmentInnerStack<TViewModel> fragmentInnerStack:
+						result.FragmentStacksToPop.Add(fragmentInnerStack);
+						break;
+					default:
+						throw new InvalidOperationException("Specific pop operation on unsupported child type");
 				}
 			}
 

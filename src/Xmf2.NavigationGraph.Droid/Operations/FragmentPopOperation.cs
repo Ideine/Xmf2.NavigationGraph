@@ -1,18 +1,19 @@
 using System.Collections.Generic;
 using Android.App;
 using Android.Support.V7.App;
+using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid.InnerStacks;
 using Xmf2.NavigationGraph.Droid.Interfaces;
 
 namespace Xmf2.NavigationGraph.Droid.Operations
 {
-	internal class FragmentPopOperation : PopOperation
+	internal class FragmentPopOperation<TViewModel> : PopOperation where TViewModel : IViewModel
 	{
-		public ActivityInnerStack HostStack { get; }
+		public ActivityInnerStack<TViewModel> HostStack { get; }
 
 		public List<IFragmentInnerStack> FragmentStacksToPop { get; } = new List<IFragmentInnerStack>();
 
-		public FragmentPopOperation(ActivityInnerStack hostStack)
+		public FragmentPopOperation(ActivityInnerStack<TViewModel> hostStack)
 		{
 			HostStack = hostStack;
 		}
@@ -21,7 +22,7 @@ namespace Xmf2.NavigationGraph.Droid.Operations
 		{
 			if (activity is AppCompatActivity appCompatActivity)
 			{
-				NavigationStack.UpdateFragments(HostStack.NavigationStack, appCompatActivity, FragmentStacksToPop, null, activity as IFragmentActivity);
+				NavigationStack<TViewModel>.UpdateFragments(HostStack.NavigationStack, appCompatActivity, FragmentStacksToPop, null, activity as IFragmentActivity);
 			}
 		}
 	}

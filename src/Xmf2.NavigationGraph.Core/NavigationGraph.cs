@@ -3,24 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using Xmf2.NavigationGraph.Core.Extensions;
 using Xmf2.NavigationGraph.Core.Graph;
+using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core
 {
-	internal class NavigationGraph
+	internal class NavigationGraph<TViewModel> where TViewModel : IViewModel
 	{
-		private readonly Dictionary<Guid, Node> _nodePerScreenIds = new Dictionary<Guid, Node>();
-		private readonly List<Node> _entryPoints = new List<Node>();
+		private readonly Dictionary<Guid, Node<TViewModel>> _nodePerScreenIds = new Dictionary<Guid, Node<TViewModel>>();
+		private readonly List<Node<TViewModel>> _entryPoints = new List<Node<TViewModel>>();
 
-		public void Add(ScreenDefinition from, ScreenDefinition to)
+		public void Add(ScreenDefinition<TViewModel> from, ScreenDefinition<TViewModel> to)
 		{
 			if (to is null)
 			{
 				throw new ArgumentNullException(nameof(to), "Null value for destination is not allowed");
 			}
 
-			if (!_nodePerScreenIds.TryGetValue(to.Id, out Node node))
+			if (!_nodePerScreenIds.TryGetValue(to.Id, out var node))
 			{
-				node = new Node(to, isEntryPoint: from is null);
+				node = new Node<TViewModel>(to, isEntryPoint: from is null);
 				_nodePerScreenIds.Add(node.Screen.Id, node);
 			}
 
@@ -30,7 +31,7 @@ namespace Xmf2.NavigationGraph.Core
 				return;
 			}
 
-			if (!_nodePerScreenIds.TryGetValue(from.Id, out Node fromNode))
+			if (!_nodePerScreenIds.TryGetValue(from.Id, out Node<TViewModel> fromNode))
 			{
 				throw new InvalidOperationException("Source has not been added to graph before destination, this is not allowed");
 			}
@@ -38,7 +39,7 @@ namespace Xmf2.NavigationGraph.Core
 			fromNode.NextNodes.Add(node);
 		}
 
-		public IList<ScreenInstance> FindWithRoute(string route)
+		public IList<ScreenInstance<TViewModel>> FindWithRoute(string route)
 		{
 			if (string.IsNullOrWhiteSpace(route))
 			{
@@ -47,7 +48,7 @@ namespace Xmf2.NavigationGraph.Core
 
 			//TODO: can set up a cache with found route in order to help the system
 			string[] routeParts = route.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
-			(List<ScreenInstance> resultNodes, _, bool resultAmbiguity) = FindBest(_entryPoints, routeParts, 0);
+			(List<ScreenInstance<TViewModel>> resultNodes, _, bool resultAmbiguity) = FindBest(_entryPoints, routeParts, 0);
 
 			if (resultAmbiguity)
 			{
@@ -56,13 +57,13 @@ namespace Xmf2.NavigationGraph.Core
 
 			return resultNodes;
 
-			(List<ScreenInstance> nodes, int score, bool ambiguity) FindBest(List<Node> nodes, string[] parts, int index)
+			(List<ScreenInstance<TViewModel>> nodes, int score, bool ambiguity) FindBest(List<Node<TViewModel>> nodes, string[] parts, int index)
 			{
-				(List<ScreenInstance> nodes, int score) result = (null, 0);
+				(List<ScreenInstance<TViewModel>> nodes, int score) result = (null, 0);
 				bool ambiguity = false;
-				for (int i = 0; i < nodes.Count; i++)
+				for (int i = 0 ; i < nodes.Count ; i++)
 				{
-					(List<ScreenInstance> nodes, int score, bool ambiguity) proposal = FindForRoute(nodes[i], parts, index);
+					(List<ScreenInstance<TViewModel>> nodes, int score, bool ambiguity) proposal = FindForRoute(nodes[i], parts, index);
 					if (proposal.nodes is null || result.score > proposal.score)
 					{
 						continue;
@@ -81,7 +82,7 @@ namespace Xmf2.NavigationGraph.Core
 				return (result.nodes, result.score, ambiguity);
 			}
 
-			(List<ScreenInstance> nodes, int score, bool ambiguity) FindForRoute(Node currentNode, string[] parts, int index)
+			(List<ScreenInstance<TViewModel>> nodes, int score, bool ambiguity) FindForRoute(Node<TViewModel> currentNode, string[] parts, int index)
 			{
 				(int currentNodeScore, string routeParameter) = RoutePartScore(currentNode, parts[index]);
 				if (currentNodeScore == 0)
@@ -89,23 +90,23 @@ namespace Xmf2.NavigationGraph.Core
 					return (null, 0, false);
 				}
 
-				ScreenInstance current = new ScreenInstance(currentNode.Screen, routeParameter, null);
+				var current = new ScreenInstance<TViewModel>(currentNode.Screen, routeParameter, null);
 
 				if (index + 1 == parts.Length)
 				{
-					return (new List<ScreenInstance>
+					return (new List<ScreenInstance<TViewModel>>
 					{
 						current
 					}, currentNodeScore, false);
 				}
 
-				(List<ScreenInstance> nodes, int score, bool ambiguity) result = FindBest(currentNode.NextNodes, parts, index + 1);
+				(List<ScreenInstance<TViewModel>> nodes, int score, bool ambiguity) result = FindBest(currentNode.NextNodes, parts, index + 1);
 				result.nodes.Insert(0, current);
 
 				return result;
 			}
 
-			(int score, string parameter) RoutePartScore(Node node, string part)
+			(int score, string parameter) RoutePartScore(Node<TViewModel> node, string part)
 			{
 				if (node.Screen.IsParameterRoute)
 				{
@@ -128,15 +129,15 @@ namespace Xmf2.NavigationGraph.Core
 			}
 		}
 
-		public IList<ScreenInstance> FindBestStack(List<ScreenInstance> currentStack, ScreenInstance screen)
+		public IList<ScreenInstance<TViewModel>> FindBestStack(List<ScreenInstance<TViewModel>> currentStack, ScreenInstance<TViewModel> screen)
 		{
-			if (!_nodePerScreenIds.TryGetValue(screen.Definition.Id, out Node destinationNode))
+			if (!_nodePerScreenIds.TryGetValue(screen.Definition.Id, out var destinationNode))
 			{
 				throw new InvalidOperationException("This screen has not been registered");
 			}
 
-			ScreenNode destinationScreen = new ScreenNode(destinationNode, screen);
-			List<ScreenNode> currentScreenStack = currentStack.ConvertAll(x => new ScreenNode(_nodePerScreenIds[x.Definition.Id], x));
+			var destinationScreen = new ScreenNode<TViewModel>(destinationNode, screen);
+			var currentScreenStack = currentStack.ConvertAll(x => new ScreenNode<TViewModel>(_nodePerScreenIds[x.Definition.Id], x));
 
 			// If nothing is on navigation stack,
 			//	we need to find a path in the tree to get to the screen, a simple BFS will works, just need to take the multi entry points into account
@@ -148,17 +149,17 @@ namespace Xmf2.NavigationGraph.Core
 			return FindPathToScreenWithBFS(currentScreenStack, destinationScreen).ConvertAll(x => x.ScreenInstance);
 		}
 
-		private List<ScreenNode> FindPathToScreenWithBFS(List<ScreenNode> navigationStack, ScreenNode destination)
+		private List<ScreenNode<TViewModel>> FindPathToScreenWithBFS(List<ScreenNode<TViewModel>> navigationStack, ScreenNode<TViewModel> destination)
 		{
-			Dictionary<Node, ScreenNode> links = new Dictionary<Node, ScreenNode>(_nodePerScreenIds.Count);
+			Dictionary<Node<TViewModel>, ScreenNode<TViewModel>> links = new Dictionary<Node<TViewModel>, ScreenNode<TViewModel>>(_nodePerScreenIds.Count);
 
-			Queue<(int level, ScreenNode node)> toProcess = new Queue<(int level, ScreenNode node)>(16);
-			HashSet<Node> usedEntryPoints = new HashSet<Node>();
+			Queue<(int level, ScreenNode<TViewModel> node)> toProcess = new Queue<(int level, ScreenNode<TViewModel> node)>(16);
+			HashSet<Node<TViewModel>> usedEntryPoints = new HashSet<Node<TViewModel>>();
 
 			// try to find with backtracking the less possible in the stack
-			for (int navigationStackIndex = navigationStack.Count - 1; navigationStackIndex >= 0; navigationStackIndex--)
+			for (int navigationStackIndex = navigationStack.Count - 1 ; navigationStackIndex >= 0 ; navigationStackIndex--)
 			{
-				ScreenNode displayedScreen = navigationStack[navigationStackIndex];
+				var displayedScreen = navigationStack[navigationStackIndex];
 
 				if (displayedScreen.Node == destination.Node && displayedScreen.ScreenInstance == destination.ScreenInstance)
 				{
@@ -172,20 +173,20 @@ namespace Xmf2.NavigationGraph.Core
 					usedEntryPoints.Add(displayedScreen.Node);
 				}
 
-				if (FindPath(destination, toProcess, links, out IList<ScreenNode> resultFromStack))
+				if (FindPath(destination, toProcess, links, out IList<ScreenNode<TViewModel>> resultFromStack))
 				{
-					List<ScreenNode> result = navigationStack.Sublist(0, navigationStackIndex);
+					List<ScreenNode<TViewModel>> result = navigationStack.Sublist(0, navigationStackIndex);
 					result.AddRange(resultFromStack);
 					return result;
 				}
 			}
 
 			// if not possible, we start from each entry point
-			foreach (Node entryPoint in _entryPoints)
+			foreach (var entryPoint in _entryPoints)
 			{
 				if (entryPoint == destination.Node)
 				{
-					return new List<ScreenNode>
+					return new List<ScreenNode<TViewModel>>
 					{
 						destination
 					};
@@ -196,23 +197,23 @@ namespace Xmf2.NavigationGraph.Core
 					continue;
 				}
 
-				toProcess.Enqueue((1, new ScreenNode(entryPoint, new ScreenInstance(entryPoint.Screen, parameter: null, viewModelCreator: null))));
+				toProcess.Enqueue((1, new ScreenNode<TViewModel>(entryPoint, new ScreenInstance<TViewModel>(entryPoint.Screen, parameter: null, viewModelCreator: null))));
 			}
 
-			if (FindPath(destination, toProcess, links, out IList<ScreenNode> resultFromEntryPoints))
+			if (FindPath(destination, toProcess, links, out IList<ScreenNode<TViewModel>> resultFromEntryPoints))
 			{
 				return resultFromEntryPoints.ToList();
 			}
 
 			throw new InvalidOperationException("No way to get to this screen");
 
-			bool FindPath(ScreenNode internalDestination, Queue<(int level, ScreenNode node)> internalToProcess, Dictionary<Node, ScreenNode> internalLinks, out IList<ScreenNode> nodes)
+			bool FindPath(ScreenNode<TViewModel> internalDestination, Queue<(int level, ScreenNode<TViewModel> node)> internalToProcess, Dictionary<Node<TViewModel>, ScreenNode<TViewModel>> internalLinks, out IList<ScreenNode<TViewModel>> nodes)
 			{
 				while (internalToProcess.Count > 0)
 				{
-					(int level, ScreenNode n) = internalToProcess.Dequeue();
+					(int level, ScreenNode<TViewModel> n) = internalToProcess.Dequeue();
 
-					foreach (Node childNode in n.Node.NextNodes)
+					foreach (var childNode in n.Node.NextNodes)
 					{
 						if (internalLinks.ContainsKey(childNode))
 						{
@@ -222,11 +223,11 @@ namespace Xmf2.NavigationGraph.Core
 						if (childNode == internalDestination.Node)
 						{
 							// backtrack to get the path and return
-							ScreenNode[] result = new ScreenNode[level + 1]; //+1 for current child
+							var result = new ScreenNode<TViewModel>[level + 1]; //+1 for current child
 
 							result[level] = internalDestination;
 							result[level - 1] = n;
-							for (int i = level - 2; i >= 0; --i)
+							for (int i = level - 2 ; i >= 0 ; --i)
 							{
 								n = internalLinks[n.Node];
 								result[i] = n;
@@ -237,7 +238,7 @@ namespace Xmf2.NavigationGraph.Core
 						}
 
 						internalLinks.Add(childNode, n); //links for backtracking
-						internalToProcess.Enqueue((level + 1, new ScreenNode(childNode, new ScreenInstance(childNode.Screen, parameter: null, viewModelCreator: null))));
+						internalToProcess.Enqueue((level + 1, new ScreenNode<TViewModel>(childNode, new ScreenInstance<TViewModel>(childNode.Screen, parameter: null, viewModelCreator: null))));
 					}
 				}
 

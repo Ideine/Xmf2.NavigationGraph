@@ -2,14 +2,14 @@ using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core
 {
-	internal class NavigationInProgress : INavigationInProgress
+	internal class NavigationInProgress<TViewModel> : INavigationInProgress where TViewModel : IViewModel
 	{
-		public NavigationInProgress(ScreenInstance[] stackBeforeNavigation)
+		public NavigationInProgress(ScreenInstance<TViewModel>[] stackBeforeNavigation)
 		{
 			StackBeforeNavigation = stackBeforeNavigation;
 		}
 
-		public ScreenInstance[] StackBeforeNavigation { get; }
+		public ScreenInstance<TViewModel>[] StackBeforeNavigation { get; }
 
 		public bool IsCancelled { get; private set; }
 

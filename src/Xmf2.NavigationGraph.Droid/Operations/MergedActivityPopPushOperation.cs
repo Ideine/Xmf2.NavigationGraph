@@ -1,14 +1,15 @@
 using Android.App;
+using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Droid.Operations
 {
-	internal class MergedActivityPopPushOperation : MergedPopPushOperation
+	internal class MergedActivityPopPushOperation<TViewModel> : MergedPopPushOperation where TViewModel : IViewModel
 	{
-		public ActivityPopOperation PopActivity { get; }
+		public ActivityPopOperation<TViewModel> PopActivity { get; }
 
-		public ActivityPushOperation PushActivity { get; }
+		public ActivityPushOperation<TViewModel> PushActivity { get; }
 
-		public MergedActivityPopPushOperation(ActivityPopOperation popActivity, ActivityPushOperation pushActivity)
+		public MergedActivityPopPushOperation(ActivityPopOperation<TViewModel> popActivity, ActivityPushOperation<TViewModel> pushActivity)
 		{
 			PopActivity = popActivity;
 			PushActivity = pushActivity;

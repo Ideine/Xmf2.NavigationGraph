@@ -1,14 +1,15 @@
 using Xmf2.NavigationGraph.Core;
+using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.iOS.Factories
 {
-	public class PushInformation
+	public class PushInformation<TViewModel> where TViewModel : IViewModel
 	{
-		public ControllerInformation Controller { get; }
+		public ControllerInformation<TViewModel> Controller { get; }
 
-		public ScreenInstance Screen { get; }
+		public ScreenInstance<TViewModel> Screen { get; }
 
-		public PushInformation(ControllerInformation controller, ScreenInstance screen)
+		public PushInformation(ControllerInformation<TViewModel> controller, ScreenInstance<TViewModel> screen)
 		{
 			Controller = controller;
 			Screen = screen;

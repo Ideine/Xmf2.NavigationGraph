@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 
 namespace Xmf2.NavigationGraph.Core.Interfaces
 {
-	public interface IPresenterService
+	public interface IPresenterService<TViewModel> where TViewModel : IViewModel
 	{
-		Task UpdateNavigation(NavigationOperation navigationOperation, INavigationInProgress navigationInProgress);
+		Task UpdateNavigation(NavigationOperation<TViewModel> navigationOperation, INavigationInProgress navigationInProgress);
 
 		void CloseApp();
 	}

@@ -1,8 +1,9 @@
 using System;
+using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core
 {
-	public class ScreenDefinition
+	public class ScreenDefinition<TViewModel> where TViewModel : IViewModel
 	{
 		public Guid Id { get; } = Guid.NewGuid();
 
@@ -11,10 +12,10 @@ namespace Xmf2.NavigationGraph.Core
 		public bool IsParameterRoute { get; }
 
 		public string ParameterName { get; }
-		
-		public ViewModelCreator DefaultViewModelCreator { get; }
 
-		public ScreenDefinition(string relativeRoute, ViewModelCreator defaultViewModelCreator)
+		public ViewModelCreator<TViewModel> DefaultViewModelCreator { get; }
+
+		public ScreenDefinition(string relativeRoute, ViewModelCreator<TViewModel> defaultViewModelCreator)
 		{
 			RelativeRoute = relativeRoute.Trim();
 			IsParameterRoute = RelativeRoute.StartsWith("{") && RelativeRoute.EndsWith("}");
@@ -24,7 +25,7 @@ namespace Xmf2.NavigationGraph.Core
 
 		public override bool Equals(object obj)
 		{
-			if (obj is ScreenDefinition screenDefinition)
+			if (obj is ScreenDefinition<TViewModel> screenDefinition)
 			{
 				if (ReferenceEquals(this, obj))
 				{
@@ -42,7 +43,7 @@ namespace Xmf2.NavigationGraph.Core
 			return false;
 		}
 
-		protected bool Equals(ScreenDefinition other)
+		protected bool Equals(ScreenDefinition<TViewModel> other)
 		{
 			return Id.Equals(other.Id);
 		}
@@ -52,12 +53,12 @@ namespace Xmf2.NavigationGraph.Core
 			return Id.GetHashCode();
 		}
 
-		public static bool operator ==(ScreenDefinition left, ScreenDefinition right)
+		public static bool operator ==(ScreenDefinition<TViewModel> left, ScreenDefinition<TViewModel> right)
 		{
 			return Equals(left, right);
 		}
 
-		public static bool operator !=(ScreenDefinition left, ScreenDefinition right)
+		public static bool operator !=(ScreenDefinition<TViewModel> left, ScreenDefinition<TViewModel> right)
 		{
 			return !Equals(left, right);
 		}

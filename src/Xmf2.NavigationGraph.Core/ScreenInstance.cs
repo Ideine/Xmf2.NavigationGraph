@@ -4,17 +4,17 @@ using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core
 {
-	public class ScreenInstance : IDisposable
+	public class ScreenInstance<TViewModel> : IDisposable where TViewModel : IViewModel
 	{
-		public ScreenDefinition Definition { get; }
+		public ScreenDefinition<TViewModel> Definition { get; }
 
 		public string Parameter { get; }
 
-		public ViewModelCreator ViewModelCreator { get; }
+		public ViewModelCreator<TViewModel> ViewModelCreator { get; }
 
-		public IViewModel ViewModelInstance { get; private set; }
+		public TViewModel ViewModelInstance { get; private set; }
 
-		public ScreenInstance(ScreenDefinition definition, string parameter, ViewModelCreator viewModelCreator)
+		public ScreenInstance(ScreenDefinition<TViewModel> definition, string parameter, ViewModelCreator<TViewModel> viewModelCreator)
 		{
 			Definition = definition;
 			Parameter = parameter;
@@ -35,7 +35,7 @@ namespace Xmf2.NavigationGraph.Core
 
 		public override bool Equals(object obj)
 		{
-			if (obj is ScreenInstance screenInstance)
+			if (obj is ScreenInstance<TViewModel> screenInstance)
 			{
 				if (ReferenceEquals(this, obj))
 				{
@@ -53,7 +53,7 @@ namespace Xmf2.NavigationGraph.Core
 			return false;
 		}
 
-		protected bool Equals(ScreenInstance other)
+		protected bool Equals(ScreenInstance<TViewModel> other)
 		{
 			return Equals(Definition.Id, other.Definition.Id) &&
 			       string.Equals(Parameter, other.Parameter);
@@ -67,12 +67,12 @@ namespace Xmf2.NavigationGraph.Core
 			}
 		}
 
-		public static bool operator ==(ScreenInstance left, ScreenInstance right)
+		public static bool operator ==(ScreenInstance<TViewModel> left, ScreenInstance<TViewModel> right)
 		{
 			return Equals(left, right);
 		}
 
-		public static bool operator !=(ScreenInstance left, ScreenInstance right)
+		public static bool operator !=(ScreenInstance<TViewModel> left, ScreenInstance<TViewModel> right)
 		{
 			return !Equals(left, right);
 		}

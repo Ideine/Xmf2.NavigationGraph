@@ -1,12 +1,14 @@
+using Xmf2.NavigationGraph.Core.Interfaces;
+
 namespace Xmf2.NavigationGraph.Core.Graph
 {
-	internal class ScreenNode
+	internal class ScreenNode<TViewModel> where TViewModel : IViewModel
 	{
-		public Node Node { get; }
+		public Node<TViewModel> Node { get; }
 
-		public ScreenInstance ScreenInstance { get; }
+		public ScreenInstance<TViewModel> ScreenInstance { get; }
 
-		public ScreenNode(Node node, ScreenInstance screenInstance)
+		public ScreenNode(Node<TViewModel> node, ScreenInstance<TViewModel> screenInstance)
 		{
 			Node = node;
 			ScreenInstance = screenInstance;

@@ -7,15 +7,15 @@ using Xmf2.NavigationGraph.Droid.Interfaces;
 
 namespace Xmf2.NavigationGraph.Droid.Operations
 {
-	internal class ActivityPushOperation : PushOperation
+	internal class ActivityPushOperation<TViewModel> : PushOperation where TViewModel : IViewModel
 	{
-		public ActivityInnerStack ActivityStack { get; }
+		public ActivityInnerStack<TViewModel> ActivityStack { get; }
 
 		public IViewModel ViewModel { get; }
 
 		public List<IFragmentInnerStack> FragmentStacksToPush { get; } = new List<IFragmentInnerStack>();
 
-		public ActivityPushOperation(ActivityInnerStack activityStack, IViewModel viewModel)
+		public ActivityPushOperation(ActivityInnerStack<TViewModel> activityStack, IViewModel viewModel)
 		{
 			ActivityStack = activityStack;
 			ViewModel = viewModel;
@@ -31,14 +31,14 @@ namespace Xmf2.NavigationGraph.Droid.Operations
 
 			if (ViewModel != null)
 			{
-				intent.PutExtra(NavigationPresenter.VIEWMODEL_LINK_PARAMETER_CODE, NavigationParameterContainer.CreateNavigationParameter(ViewModel));
+				intent.PutExtra(NavigationConstants.VIEWMODEL_LINK_PARAMETER_CODE, NavigationParameterContainer<TViewModel>.CreateNavigationParameter(ViewModel));
 			}
 
 			if (FragmentStacksToPush.Count > 0)
 			{
-				FragmentPushOperation operation = new FragmentPushOperation(ActivityStack);
+				var operation = new FragmentPushOperation<TViewModel>(ActivityStack);
 				operation.FragmentStacksToPush.AddRange(FragmentStacksToPush);
-				intent.PutExtra(NavigationPresenter.FRAGMENT_START_PARAMETER_CODE, NavigationParameterContainer.CreateNavigationParameter(new DeferredNavigationAction(operation)));
+				intent.PutExtra(NavigationConstants.FRAGMENT_START_PARAMETER_CODE, NavigationParameterContainer<TViewModel>.CreateNavigationParameter(new DeferredNavigationAction(operation)));
 			}
 
 			activity.StartActivity(intent);

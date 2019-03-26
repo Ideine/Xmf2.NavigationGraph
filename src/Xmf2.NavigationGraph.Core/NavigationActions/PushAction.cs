@@ -1,10 +1,11 @@
 using System;
+using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core.NavigationActions
 {
-	public class PushAction : NavigationAction
+	public class PushAction<TViewModel> : NavigationAction<TViewModel> where TViewModel : IViewModel
 	{
-		internal PushAction(ScreenInstance screen) : base(screen)
+		internal PushAction(ScreenInstance<TViewModel> screen) : base(screen)
 		{
 #if DEBUG
 			Console.WriteLine($"\t\tPush: {screen.Definition.RelativeRoute} (parameter: {screen.Parameter})");

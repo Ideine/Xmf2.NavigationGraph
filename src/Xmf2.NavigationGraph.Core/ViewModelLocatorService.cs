@@ -3,18 +3,18 @@ using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core
 {
-	public class ViewModelLocatorService : IViewModelLocatorService
+	public class ViewModelLocatorService<TViewModel> : IViewModelLocatorService<TViewModel> where TViewModel : IViewModel
 	{
-		private readonly Dictionary<string, IViewModel> _locator = new Dictionary<string, IViewModel>();
+		private readonly Dictionary<string, TViewModel> _locator = new Dictionary<string, TViewModel>();
 
-		public void AddViewModel(string route, IViewModel viewModel)
+		public void AddViewModel(string route, TViewModel viewModel)
 		{
 			_locator[route] = viewModel;
 		}
 
-		public IViewModel GetViewModel(string route)
+		public TViewModel GetViewModel(string route)
 		{
-			return _locator.TryGetValue(route, out var vm) ? vm : null;
+			return _locator.TryGetValue(route, out var vm) ? vm : default(TViewModel);
 		}
 	}
 }

@@ -7,45 +7,45 @@ using Xmf2.NavigationGraph.Core.NavigationActions;
 
 namespace Xmf2.NavigationGraph.Core
 {
-	public interface INavigationService
+	public interface INavigationService<TViewModel> where TViewModel : IViewModel
 	{
-		void RegisterEntryPoint(ScreenDefinition screen);
-		void Register(ScreenDefinition from, ScreenDefinition screen);
+		void RegisterEntryPoint(ScreenDefinition<TViewModel> screen);
+		void Register(ScreenDefinition<TViewModel> from, ScreenDefinition<TViewModel> screen);
 
 		Task Show(string route);
-		Task Show(ScreenDefinition screen, string parameter = null, ViewModelCreator viewModelCreator = null);
+		Task Show(ScreenDefinition<TViewModel> screen, string parameter = null, ViewModelCreator<TViewModel> viewModelCreator = null);
 
 		Task Close();
-		Task Push(string route, ViewModelCreator viewModelCreator = null);
+		Task Push(string route, ViewModelCreator<TViewModel> viewModelCreator = null);
 	}
 
-	public class NavigationService : INavigationService
+	public class NavigationService<TViewModel> : INavigationService<TViewModel> where TViewModel : IViewModel
 	{
-		private readonly IPresenterService _presenterService;
-		private readonly NavigationGraph _navigationGraph = new NavigationGraph();
-		private readonly List<ScreenInstance> _navigationStack = new List<ScreenInstance>(10);
+		private readonly IPresenterService<TViewModel> _presenterService;
+		private readonly NavigationGraph<TViewModel> _navigationGraph = new NavigationGraph<TViewModel>();
+		private readonly List<ScreenInstance<TViewModel>> _navigationStack = new List<ScreenInstance<TViewModel>>(10);
 
 		private readonly object _mutex = new object();
-		private NavigationInProgress _navigationInProgress;
+		private NavigationInProgress<TViewModel> _navigationInProgress;
 
-		public NavigationService(IPresenterService presenterService)
+		public NavigationService(IPresenterService<TViewModel> presenterService)
 		{
 			_presenterService = presenterService;
 		}
 
-		public void RegisterEntryPoint(ScreenDefinition screen)
+		public void RegisterEntryPoint(ScreenDefinition<TViewModel> screen)
 		{
 			_navigationGraph.Add(null, screen);
 		}
 
-		public void Register(ScreenDefinition from, ScreenDefinition screen)
+		public void Register(ScreenDefinition<TViewModel> from, ScreenDefinition<TViewModel> screen)
 		{
 			_navigationGraph.Add(from, screen);
 		}
 
 		public async Task Show(string route)
 		{
-			List<ScreenInstance> result = _navigationGraph.FindWithRoute(route).ToList();
+			var result = _navigationGraph.FindWithRoute(route).ToList();
 
 #if DEBUG
 			Console.WriteLine($"Navigating to route {route}");
@@ -55,10 +55,10 @@ namespace Xmf2.NavigationGraph.Core
 			await UpdateNavigationStack(result);
 		}
 
-		public async Task Show(ScreenDefinition screen, string parameter, ViewModelCreator viewModelCreator)
+		public async Task Show(ScreenDefinition<TViewModel> screen, string parameter, ViewModelCreator<TViewModel> viewModelCreator)
 		{
-			ScreenInstance screenInstance = new ScreenInstance(screen, parameter, viewModelCreator);
-			List<ScreenInstance> result = _navigationGraph.FindBestStack(_navigationStack, screenInstance).ToList();
+			var screenInstance = new ScreenInstance<TViewModel>(screen, parameter, viewModelCreator);
+			var result = _navigationGraph.FindBestStack(_navigationStack, screenInstance).ToList();
 
 #if DEBUG
 			Console.WriteLine($"Navigating to {screen.RelativeRoute}");
@@ -75,8 +75,8 @@ namespace Xmf2.NavigationGraph.Core
 				_presenterService.CloseApp();
 			}
 
-			List<ScreenInstance> newStack = new List<ScreenInstance>(_navigationStack.Count - 1);
-			for (var i = 0; i < _navigationStack.Count - 1; i++)
+			var newStack = new List<ScreenInstance<TViewModel>>(_navigationStack.Count - 1);
+			for (var i = 0 ; i < _navigationStack.Count - 1 ; i++)
 			{
 				newStack.Add(_navigationStack[i]);
 			}
@@ -89,7 +89,7 @@ namespace Xmf2.NavigationGraph.Core
 			await UpdateNavigationStack(newStack);
 		}
 
-		public Task Push(string route, ViewModelCreator viewModelCreator)
+		public Task Push(string route, ViewModelCreator<TViewModel> viewModelCreator)
 		{
 			if (route.Contains('/'))
 			{
@@ -99,7 +99,7 @@ namespace Xmf2.NavigationGraph.Core
 			throw new NotImplementedException();
 		}
 
-		private async Task UpdateNavigationStack(List<ScreenInstance> newNavigationStack)
+		private async Task UpdateNavigationStack(List<ScreenInstance<TViewModel>> newNavigationStack)
 		{
 			lock (_mutex)
 			{
@@ -114,20 +114,20 @@ namespace Xmf2.NavigationGraph.Core
 				_navigationInProgress = null;
 			}
 
-			_navigationInProgress = new NavigationInProgress(_navigationStack.ToArray());
+			_navigationInProgress = new NavigationInProgress<TViewModel>(_navigationStack.ToArray());
 
-			NavigationOperation navigationOperation = new NavigationOperation();
+			var navigationOperation = new NavigationOperation<TViewModel>();
 			int commonIndexLimit = 0;
 			for (;
 				commonIndexLimit < newNavigationStack.Count &&
 				commonIndexLimit < _navigationStack.Count &&
-				newNavigationStack[commonIndexLimit] == _navigationStack[commonIndexLimit];
+				newNavigationStack[commonIndexLimit] == _navigationStack[commonIndexLimit] ;
 				++commonIndexLimit) { }
 
 			//generate pop instructions
-			for (int i = _navigationStack.Count - 1; i >= commonIndexLimit; i--)
+			for (int i = _navigationStack.Count - 1 ; i >= commonIndexLimit ; i--)
 			{
-				navigationOperation.Add(new PopAction(_navigationStack[i]));
+				navigationOperation.Add(new PopAction<TViewModel>(_navigationStack[i]));
 			}
 
 			_navigationStack.RemoveRange(commonIndexLimit, _navigationStack.Count - commonIndexLimit);
@@ -138,9 +138,9 @@ namespace Xmf2.NavigationGraph.Core
 				_navigationStack.Capacity = newNavigationStack.Count + 3; //Why 3 ? because we could use some margin and 3 is a nice small number !
 			}
 
-			for (int i = commonIndexLimit; i < newNavigationStack.Count; ++i)
+			for (int i = commonIndexLimit ; i < newNavigationStack.Count ; ++i)
 			{
-				navigationOperation.Add(new PushAction(newNavigationStack[i]));
+				navigationOperation.Add(new PushAction<TViewModel>(newNavigationStack[i]));
 				_navigationStack.Add(newNavigationStack[i]);
 			}
 

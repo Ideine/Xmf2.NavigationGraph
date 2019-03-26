@@ -1,20 +1,21 @@
 using System;
 using Android.Support.V4.App;
+using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid.Interfaces;
 using Xmf2.NavigationGraph.Droid.Operations;
 
 namespace Xmf2.NavigationGraph.Droid.InnerStacks
 {
-	internal class DialogFragmentInnerStack : InnerStack, IFragmentInnerStack
+	internal class DialogFragmentInnerStack<TViewModel> : InnerStack<TViewModel>, IFragmentInnerStack where TViewModel : IViewModel
 	{
-		public ActivityInnerStack FragmentHost { get; }
+		public ActivityInnerStack<TViewModel> FragmentHost { get; }
 
 		public DialogFragment Fragment { get; }
 		Fragment IFragmentInnerStack.Fragment => Fragment;
 
 		public string FragmentTag { get; }
 
-		public DialogFragmentInnerStack(NavigationStack navigationStack, ActivityInnerStack fragmentHost, DialogFragment fragment) : base(navigationStack)
+		public DialogFragmentInnerStack(NavigationStack<TViewModel> navigationStack, ActivityInnerStack<TViewModel> fragmentHost, DialogFragment fragment) : base(navigationStack)
 		{
 			FragmentHost = fragmentHost;
 			Fragment = fragment;
@@ -25,7 +26,7 @@ namespace Xmf2.NavigationGraph.Droid.InnerStacks
 
 		public override PopOperation AsPopOperation()
 		{
-			return new FragmentPopOperation(FragmentHost)
+			return new FragmentPopOperation<TViewModel>(FragmentHost)
 			{
 				FragmentStacksToPop =
 				{
@@ -34,7 +35,7 @@ namespace Xmf2.NavigationGraph.Droid.InnerStacks
 			};
 		}
 
-		public override PopOperation AsSpecificPopOperation(InnerStack child)
+		public override PopOperation AsSpecificPopOperation(InnerStack<TViewModel> child)
 		{
 			throw new InvalidOperationException("Operation not supported, fragment can not have children");
 		}

@@ -1,31 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UIKit;
 using Xmf2.NavigationGraph.Core;
+using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.iOS.Factories;
 using Xmf2.NavigationGraph.iOS.InnerStacks;
 using Xmf2.NavigationGraph.iOS.Operations;
 
 namespace Xmf2.NavigationGraph.iOS
 {
-	public class NavigationStack
+	public class NavigationStack<TViewModel> where TViewModel : IViewModel
 	{
 		private readonly List<InnerStack> _innerStacks = new List<InnerStack>();
 
 		public void EnsureInitialized(UIWindow window)
 		{
-//				if (window.RootViewController is UINavigationController)
-//				{
-//					return;
-//				}
+			//TODO POURRAIT ÊTRE MIEUX FAIT
 
-//				UINavigationController navigationController = new HandleFreeRotateNavigationController();
-//				window.RootViewController = navigationController;
-
-//				_innerStacks.Add(new NavigationControllerInnerStack(navigationController, null));
+			if (!_innerStacks.Any(x => x is NavigationControllerInnerStack))
+			{
+				_innerStacks.Add(new NavigationControllerInnerStack(window.RootViewController, null));
+			}
 		}
 
-		public void ApplyActions(int popsCount, IEnumerable<PushInformation> pushesCount, CallbackActionWaiter callbackActionWaiter)
+		public void ApplyActions(int popsCount, IEnumerable<PushInformation<TViewModel>> pushesCount, CallbackActionWaiter callbackActionWaiter)
 		{
 			var pops = Pop(popsCount);
 			var pushes = Push(pushesCount);
@@ -41,14 +40,14 @@ namespace Xmf2.NavigationGraph.iOS
 			bool mergedAnimated = pushes.Count == 0;
 			int pushAnimatedIndex = pushes.Count - 1;
 
-			for (var index = 0; index < pops.Count; index++)
+			for (var index = 0 ; index < pops.Count ; index++)
 			{
 				pops[index].Execute(callbackActionWaiter, popAnimatedIndex == index);
 			}
 
 			mergedOp?.Execute(callbackActionWaiter, mergedAnimated);
 
-			for (var index = 0; index < pushes.Count; index++)
+			for (var index = 0 ; index < pushes.Count ; index++)
 			{
 				pushes[index].Execute(callbackActionWaiter, pushAnimatedIndex == index);
 			}
@@ -66,7 +65,7 @@ namespace Xmf2.NavigationGraph.iOS
 			var popOperations = new List<PopOperation>();
 
 			var lastInnerStackPopIndex = _innerStacks.Count;
-			for (var i = _innerStacks.Count - 1; i >= 0; i--)
+			for (var i = _innerStacks.Count - 1 ; i >= 0 ; i--)
 			{
 				var item = _innerStacks[i];
 				if (item.Count <= popCount)
@@ -103,7 +102,7 @@ namespace Xmf2.NavigationGraph.iOS
 
 			//simplify list of pop operations
 			var insertIndex = 0;
-			for (var i = 1; i < popOperations.Count; i++)
+			for (var i = 1 ; i < popOperations.Count ; i++)
 			{
 				if (TryMerge(popOperations[insertIndex], popOperations[i], out var op))
 				{
@@ -128,7 +127,7 @@ namespace Xmf2.NavigationGraph.iOS
 			return popOperations;
 		}
 
-		private List<PushOperation> Push(IEnumerable<PushInformation> pushInformations)
+		private List<PushOperation> Push(IEnumerable<PushInformation<TViewModel>> pushInformations)
 		{
 			var pushOperations = new List<PushOperation>();
 			var stackTop = _innerStacks[_innerStacks.Count - 1];
@@ -176,7 +175,7 @@ namespace Xmf2.NavigationGraph.iOS
 
 			//simplify list of pop operations
 			var insertIndex = 0;
-			for (var i = 1; i < pushOperations.Count; i++)
+			for (var i = 1 ; i < pushOperations.Count ; i++)
 			{
 				if (TryMerge(pushOperations[insertIndex], pushOperations[i], out PushOperation op))
 				{
@@ -200,7 +199,7 @@ namespace Xmf2.NavigationGraph.iOS
 
 			return pushOperations;
 
-			InnerStack CreateFromType(PushInformation info, InnerStack container)
+			InnerStack CreateFromType(PushInformation<TViewModel> info, InnerStack container)
 			{
 				var res = info.Controller.Factory(info.Screen.ViewModelInstance);
 				if (res is UINavigationController)
