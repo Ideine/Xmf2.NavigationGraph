@@ -45,7 +45,6 @@
     <Compile Include="InnerStacks\SimpleControllerInnerStack.cs" />
     <Compile Include="Interfaces\IRegistrationPresenterService.cs" />
     <Compile Include="NavigationPresenter.cs" />
-    <None Include="NavigationRegistrationHandler.cs" />
     <Compile Include="NavigationStack.cs" />
     <Compile Include="Operations\MergedPopPushNavigationControllerOperation.cs" />
     <Compile Include="Operations\MergedPopPushOperation.cs" />

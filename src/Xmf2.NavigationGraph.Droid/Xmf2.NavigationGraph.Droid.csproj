@@ -60,7 +60,6 @@
     <Compile Include="NavigationConstants.cs" />
     <Compile Include="NavigationParameterContainer.cs" />
     <Compile Include="NavigationPresenter.cs" />
-    <None Include="NavigationRegistrationHandler.cs" />
     <Compile Include="NavigationStack.cs" />
     <Compile Include="Operations\ActivityPopOperation.cs" />
     <Compile Include="Operations\ActivityPushOperation.cs" />
