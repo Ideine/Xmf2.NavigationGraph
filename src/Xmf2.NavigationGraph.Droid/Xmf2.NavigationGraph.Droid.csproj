@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bases\BaseDialogFragment.cs" />
+    <Compile Include="Bases\BaseFragment.cs" />
+    <Compile Include="Bases\BaseFragmentActivity.cs" />
     <Compile Include="Factories\ActivityViewFactory.cs" />
     <Compile Include="Factories\DialogFragmentViewFactory.cs" />
     <Compile Include="Factories\FragmentViewFactory.cs" />
