@@ -42,11 +42,7 @@ namespace Xmf2.NavigationGraph.iOS
 				return;
 			}
 
-			List<PushInformation<TViewModel>> controllersToPush = navigationOperation.Pushes.ConvertAll(x =>
-			{
-				var a = new PushInformation<TViewModel>(_factoryAssociation[x.Screen], x.Instance);
-				return a;
-			});
+			List<PushInformation<TViewModel>> controllersToPush = navigationOperation.Pushes.ConvertAll(x => new PushInformation<TViewModel>(_factoryAssociation[x.Screen], x.Instance));
 
 			foreach (var push in navigationOperation.Pushes)
 			{
