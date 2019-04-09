@@ -14,17 +14,14 @@ namespace Xmf2.NavigationGraph.iOS
 	{
 		private readonly List<InnerStack> _innerStacks = new List<InnerStack>();
 
-		public void EnsureInitialized(UIWindow window)
+		public void EnsureInitialized(UINavigationController viewController)
 		{
-			if (window.RootViewController is UINavigationController)
+			//TODO POURRAIT ÊTRE MIEUX FAIT
+
+			if (!_innerStacks.Any(x => x is NavigationControllerInnerStack))
 			{
-				return;
+				_innerStacks.Add(new NavigationControllerInnerStack(viewController, null));
 			}
-
-			UINavigationController navigationController = new UINavigationController();
-			window.RootViewController = navigationController;
-
-			_innerStacks.Add(new NavigationControllerInnerStack(navigationController, null));
 		}
 
 		public void ApplyActions(int popsCount, IEnumerable<PushInformation<TViewModel>> pushesCount, CallbackActionWaiter callbackActionWaiter)
@@ -205,9 +202,9 @@ namespace Xmf2.NavigationGraph.iOS
 			InnerStack CreateFromType(PushInformation<TViewModel> info, InnerStack container)
 			{
 				var res = info.Controller.Factory(info.Screen.ViewModelInstance);
-				if (res is UINavigationController)
+				if (res is UINavigationController navigationController)
 				{
-					return new NavigationControllerInnerStack(res, container);
+					return new NavigationControllerInnerStack(navigationController, container);
 				}
 
 				return new SimpleControllerInnerStack(container.Host, res, container);

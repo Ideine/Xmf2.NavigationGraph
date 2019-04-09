@@ -6,7 +6,7 @@ namespace NavSample.iOS
 {
 	public class SampleNavigationPresenter : NavigationPresenter<SampleViewModel>
 	{
-		public SampleNavigationPresenter(UIWindow window) : base(window)
+		public SampleNavigationPresenter(UINavigationController navigationController) : base(navigationController)
 		{
 		}
 	}

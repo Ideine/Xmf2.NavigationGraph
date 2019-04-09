@@ -8,7 +8,7 @@ namespace Xmf2.NavigationGraph.iOS.InnerStacks
 {
 	public class NavigationControllerInnerStack : InnerStack
 	{
-		public NavigationControllerInnerStack(UIViewController host, InnerStack container) : base(host)
+		public NavigationControllerInnerStack(UINavigationController host, InnerStack container) : base(host)
 		{
 			Container = container;
 		}

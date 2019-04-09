@@ -1,10 +1,7 @@
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using NavSample.Core;
 using UIKit;
-using Xmf2.NavigationGraph.Core;
-using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.iOS.Interfaces;
 
 namespace NavSample.iOS
@@ -16,7 +13,10 @@ namespace NavSample.iOS
 
 		public static async void Initialize(UIWindow window)
 		{
-			_presenter = new SampleNavigationPresenter(window);
+			var navigationController = new UINavigationController();
+			window.RootViewController = navigationController;
+
+			_presenter = new SampleNavigationPresenter(navigationController);
 			Navigation = new SampleNavigationService(_presenter);
 			AssociateScreenToViewController(_presenter);
 			await Navigation.ShowHome();
