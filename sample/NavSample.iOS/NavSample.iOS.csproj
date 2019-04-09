@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>NavSample.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>NavRefacto</AssemblyName>
+    <AssemblyName>NavSample</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>

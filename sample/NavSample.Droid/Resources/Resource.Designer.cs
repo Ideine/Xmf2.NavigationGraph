@@ -9,9 +9,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Android.Runtime.ResourceDesignerAttribute("NavRefacto.Droid.Resource", IsApplication=true)]
+[assembly: global::Android.Runtime.ResourceDesignerAttribute("NavSample.Droid.Resource", IsApplication=true)]
 
-namespace NavRefacto.Droid
+namespace NavSample.Droid
 {
 	
 	

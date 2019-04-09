@@ -5,7 +5,7 @@ using NavSample;
 
 namespace NavSample.Droid
 {
-	[Activity(Label = "NavRefacto.Droid", MainLauncher = true, Icon = "@drawable/icon", Theme = "@style/AppTheme_NoActionBar")]
+	[Activity(Label = "NavSample.Droid", MainLauncher = true, Icon = "@drawable/icon", Theme = "@style/AppTheme_NoActionBar")]
 	public class SplashActivity : AppCompatActivity
 	{
 		protected override void OnCreate(Bundle bundle)

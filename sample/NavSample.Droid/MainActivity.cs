@@ -2,9 +2,8 @@
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Widget;
-using NavSample.Core;
+using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid;
-using NavSample;
 
 namespace NavSample.Droid
 {

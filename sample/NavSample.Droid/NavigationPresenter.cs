@@ -39,7 +39,7 @@ namespace NavSample.Droid
 			return key;
 		}
 
-		public static IViewModel GetViewModel(string key) => Get<Core.IViewModel>(key);
+		public static IViewModel GetViewModel(string key) => Get<IViewModel>(key);
 		public static IDeferredNavigationAction GetDeferredNavigationAction(string key) => Get<IDeferredNavigationAction>(key);
 
 		private static T Get<T>(string key)

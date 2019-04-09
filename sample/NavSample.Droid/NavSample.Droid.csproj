@@ -3,6 +3,7 @@
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
+    <RootNamespace>NavSample.Droid</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -13,8 +14,8 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NavRefacto.Droid</RootNamespace>
-    <AssemblyName>NavRefacto.Droid</AssemblyName>
+    <RootNamespace>NavSample.Droid</RootNamespace>
+    <AssemblyName>NavSample.Droid</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
