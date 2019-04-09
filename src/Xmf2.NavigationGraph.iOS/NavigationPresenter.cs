@@ -8,21 +8,19 @@ using Xmf2.NavigationGraph.Core.Extensions;
 using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Core.NavigationActions;
 using Xmf2.NavigationGraph.iOS.Factories;
-using Xmf2.NavigationGraph.iOS.InnerStacks;
 using Xmf2.NavigationGraph.iOS.Interfaces;
-using Xmf2.NavigationGraph.iOS.Operations;
 
 namespace Xmf2.NavigationGraph.iOS
 {
 	public class NavigationPresenter<TViewModel> : IPresenterService<TViewModel>, IRegistrationPresenterService<TViewModel> where TViewModel : IViewModel
 	{
 		private readonly Dictionary<ScreenDefinition<TViewModel>, ControllerInformation<TViewModel>> _factoryAssociation = new Dictionary<ScreenDefinition<TViewModel>, ControllerInformation<TViewModel>>();
-		private readonly UIWindow _window;
+		private readonly UINavigationController _navigationController;
 		private readonly NavigationStack<TViewModel> _navigationStack = new NavigationStack<TViewModel>();
 
-		public NavigationPresenter(UIWindow window)
+		public NavigationPresenter(UINavigationController navigationController)
 		{
-			_window = window;
+			_navigationController = navigationController;
 		}
 
 		public void Associate(ScreenDefinition<TViewModel> screenDefinition, ViewCreator<TViewModel> controllerFactory)
@@ -69,7 +67,7 @@ namespace Xmf2.NavigationGraph.iOS
 			{
 				var callbackActionWaiter = new CallbackActionWaiter();
 				callbackActionWaiter.WaitOne();
-				_navigationStack.EnsureInitialized(_window);
+				_navigationStack.EnsureInitialized(_navigationController);
 
 				_navigationStack.ApplyActions(navigationOperation.Pops.Count, controllersToPush, callbackActionWaiter);
 

@@ -14,13 +14,13 @@ namespace Xmf2.NavigationGraph.iOS
 	{
 		private readonly List<InnerStack> _innerStacks = new List<InnerStack>();
 
-		public void EnsureInitialized(UIWindow window)
+		public void EnsureInitialized(UINavigationController viewController)
 		{
 			//TODO POURRAIT ÊTRE MIEUX FAIT
 
 			if (!_innerStacks.Any(x => x is NavigationControllerInnerStack))
 			{
-				_innerStacks.Add(new NavigationControllerInnerStack(window.RootViewController, null));
+				_innerStacks.Add(new NavigationControllerInnerStack(viewController, null));
 			}
 		}
 
@@ -202,9 +202,9 @@ namespace Xmf2.NavigationGraph.iOS
 			InnerStack CreateFromType(PushInformation<TViewModel> info, InnerStack container)
 			{
 				var res = info.Controller.Factory(info.Screen.ViewModelInstance);
-				if (res is UINavigationController)
+				if (res is UINavigationController navigationController)
 				{
-					return new NavigationControllerInnerStack(res, container);
+					return new NavigationControllerInnerStack(navigationController, container);
 				}
 
 				return new SimpleControllerInnerStack(container.Host, res, container);

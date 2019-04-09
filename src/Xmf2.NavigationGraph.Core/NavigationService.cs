@@ -55,7 +55,7 @@ namespace Xmf2.NavigationGraph.Core
 			await UpdateNavigationStack(result);
 		}
 
-		public async Task Show(ScreenDefinition<TViewModel> screen, string parameter, ViewModelCreator<TViewModel> viewModelCreator)
+		public async Task Show(ScreenDefinition<TViewModel> screen, string parameter = null, ViewModelCreator<TViewModel> viewModelCreator = null)
 		{
 			var screenInstance = new ScreenInstance<TViewModel>(screen, parameter, viewModelCreator);
 			var result = _navigationGraph.FindBestStack(_navigationStack, screenInstance).ToList();
