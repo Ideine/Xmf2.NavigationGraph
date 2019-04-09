@@ -16,12 +16,15 @@ namespace Xmf2.NavigationGraph.iOS
 
 		public void EnsureInitialized(UIWindow window)
 		{
-			//TODO POURRAIT ÊTRE MIEUX FAIT
-
-			if (!_innerStacks.Any(x => x is NavigationControllerInnerStack))
+			if (window.RootViewController is UINavigationController)
 			{
-				_innerStacks.Add(new NavigationControllerInnerStack(window.RootViewController, null));
+				return;
 			}
+
+			UINavigationController navigationController = new UINavigationController();
+			window.RootViewController = navigationController;
+
+			_innerStacks.Add(new NavigationControllerInnerStack(navigationController, null));
 		}
 
 		public void ApplyActions(int popsCount, IEnumerable<PushInformation<TViewModel>> pushesCount, CallbackActionWaiter callbackActionWaiter)
