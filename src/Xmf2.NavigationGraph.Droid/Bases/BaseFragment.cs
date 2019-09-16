@@ -33,9 +33,11 @@ namespace Xmf2.NavigationGraph.Droid.Bases
 			if (string.IsNullOrEmpty(ScreenRoute) && savedInstanceState != null)
 			{
 				ScreenRoute = savedInstanceState.GetString(VIEWMODEL_ROUTE);
+				Android.Util.Log.Info("FRAGMENT IDELINK", $"ONCREATE GET SCREENROUTE {ScreenRoute}");
 			}
 
 			ViewModel = ViewModelLocatorService.GetViewModel(ScreenRoute);
+			Android.Util.Log.Info("FRAGMENT IDELINK", $"ONCREATE {ViewModel == null}");
 		}
 
 		protected override void Dispose(bool disposing)

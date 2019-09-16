@@ -9,10 +9,13 @@ namespace Xmf2.NavigationGraph.Droid
 	{
 		private static readonly Dictionary<string, object> _parameters = new Dictionary<string, object>();
 
+		private static readonly Guid _id = Guid.NewGuid();
+
 		internal static string CreateNavigationParameter(object parameter)
 		{
 			string key = $"{parameter.GetType().Name}+{Guid.NewGuid():N}";
 			_parameters.Add(key, parameter);
+			Android.Util.Log.Info("NAVPARAMETER", $"Added {key} / id : {_id}");
 			return key;
 		}
 
@@ -25,6 +28,8 @@ namespace Xmf2.NavigationGraph.Droid
 			{
 				return (T)result;
 			}
+
+			Android.Util.Log.Info("NAVPARAMETER", $"{key} not found / id : {_id}");
 
 			throw new ArgumentOutOfRangeException($"The key {key} does not match any navigation parameters");
 		}

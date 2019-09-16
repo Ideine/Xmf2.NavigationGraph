@@ -328,4 +328,4 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
-sample/NavSample.Droid/Resources/Resource.Designer.cs
+Resource.Designer.cs
