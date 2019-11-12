@@ -9,6 +9,7 @@ using Xmf2.NavigationGraph.Droid.InnerStacks;
 using Xmf2.NavigationGraph.Droid.Interfaces;
 using Xmf2.NavigationGraph.Droid.Operations;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
+using System.Linq;
 
 namespace Xmf2.NavigationGraph.Droid
 {
@@ -23,6 +24,20 @@ namespace Xmf2.NavigationGraph.Droid
 		}
 
 		private InnerStack<TViewModel> Top => _innerStacks[_innerStacks.Count - 1];
+
+		private T FindFirstOfType<T>() where T : InnerStack<TViewModel>
+		{
+			for (int index = _innerStacks.Count - 1 ; index >= 0 ; index--)
+			{
+				InnerStack<TViewModel> stack = _innerStacks[index];
+				if (stack is T result)
+				{
+					return result;
+				}
+			}
+
+			return null;
+		}
 
 		public void ApplyActions(int popsCount, List<PushInformation<TViewModel>> pushesInformations)
 		{
@@ -62,7 +77,7 @@ namespace Xmf2.NavigationGraph.Droid
 			List<PopOperation> popOperations = new List<PopOperation>();
 
 			int lastInnerStackPopIndex = _innerStacks.Count;
-			for (int i = _innerStacks.Count - 1; i >= 0; i--)
+			for (int i = _innerStacks.Count - 1 ; i >= 0 ; i--)
 			{
 				var item = _innerStacks[i];
 				if (item.Count <= popCount)
@@ -94,7 +109,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			//simplify list of pop operations
 			int insertIndex = 0;
-			for (int i = 1; i < popOperations.Count; i++)
+			for (int i = 1 ; i < popOperations.Count ; i++)
 			{
 				if (TryMerge(popOperations[insertIndex], popOperations[i], out PopOperation op))
 				{
@@ -208,7 +223,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			//simplify list of pop operations
 			int insertIndex = 0;
-			for (int i = 1; i < pushOperations.Count; i++)
+			for (int i = 1 ; i < pushOperations.Count ; i++)
 			{
 				if (TryMerge(pushOperations[insertIndex], pushOperations[i], out PushOperation op))
 				{
@@ -292,7 +307,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 		private bool TryMerge(PopOperation popOp, PushOperation pushOp, out MergedPopPushOperation res)
 		{
-			if (popOp is FragmentPopOperation <TViewModel>fragmentPopOperation && pushOp is FragmentPushOperation<TViewModel> fragmentPushOperation)
+			if (popOp is FragmentPopOperation<TViewModel> fragmentPopOperation && pushOp is FragmentPushOperation<TViewModel> fragmentPushOperation)
 			{
 				if (fragmentPopOperation.HostStack == fragmentPushOperation.HostStack)
 				{
@@ -315,10 +330,13 @@ namespace Xmf2.NavigationGraph.Droid
 		{
 			FragmentTransaction transaction = null;
 
+			var dialogFragmentToPush = fragmentsToPush?.Where(x => x is DialogFragmentInnerStack<TViewModel>).Cast<DialogFragmentInnerStack<TViewModel>>().ToList();
+			var normalFragmentToPush = fragmentsToPush?.Where(x => x is FragmentInnerStack<TViewModel>).ToList();
+			List<FragmentInnerStack<TViewModel>> fragmentListToPop = null;
+
 			if (fragmentsToPop != null)
 			{
-				List<FragmentInnerStack<TViewModel>> fragmentListToPop = null;
-				foreach (var fragmentStack in fragmentsToPop)
+				foreach (IFragmentInnerStack fragmentStack in fragmentsToPop)
 				{
 					if (fragmentStack is DialogFragmentInnerStack<TViewModel> dialogFragmentInnerStack)
 					{
@@ -345,59 +363,47 @@ namespace Xmf2.NavigationGraph.Droid
 				}
 			}
 
-			if (fragmentsToPush != null)
+			if (normalFragmentToPush != null && normalFragmentToPush.Count > 0 && fragmentActivity != null)
 			{
-				List<DialogFragmentInnerStack<TViewModel>> dialogFragmentsToPush = null;
-				foreach (var fragmentStack in fragmentsToPush)
+				foreach (IFragmentInnerStack fragmentStack in normalFragmentToPush)
 				{
-					switch (fragmentStack)
+					if (transaction is null)
 					{
-						case DialogFragmentInnerStack<TViewModel> dialogFragmentInnerStack:
-						{
-							if (dialogFragmentsToPush is null)
-							{
-								dialogFragmentsToPush = new List<DialogFragmentInnerStack<TViewModel>>(fragmentsToPush.Count);
-							}
-
-							dialogFragmentsToPush.Add(dialogFragmentInnerStack);
-							break;
-						}
-						case FragmentInnerStack<TViewModel> fragmentInnerStack when fragmentActivity != null:
-						{
-							if (transaction is null)
-							{
-								transaction = appCompatActivity.SupportFragmentManager.BeginTransaction();
-							}
-
-							transaction.AddToBackStack(fragmentStack.FragmentTag);
-							transaction = transaction.Replace(fragmentActivity.FragmentContainerId, fragmentStack.Fragment, fragmentStack.FragmentTag);
-							break;
-						}
+						transaction = appCompatActivity.SupportFragmentManager.BeginTransaction();
 					}
+
+					transaction.AddToBackStack(fragmentStack.FragmentTag);
+					transaction = transaction.Replace(fragmentActivity.FragmentContainerId, fragmentStack.Fragment, fragmentStack.FragmentTag);
+					break;
+				}
+			}
+			else if (transaction != null)
+			{
+				ActivityInnerStack<TViewModel> activityTop;
+				if (dialogFragmentToPush != null & dialogFragmentToPush.Count > 0)
+				{
+					activityTop = navigationStack.FindFirstOfType<ActivityInnerStack<TViewModel>>();
+				}
+				else
+				{
+					activityTop = navigationStack.Top as ActivityInnerStack<TViewModel>;
 				}
 
-				transaction?.CommitAllowingStateLoss();
-
-				if (dialogFragmentsToPush != null)
+				if (activityTop != null && activityTop.FragmentStack.Count > 0 && activityTop.FragmentStack[activityTop.FragmentStack.Count - 1] is FragmentInnerStack<TViewModel> fragmentInnerStack)
 				{
-					foreach (var dialogFragment in dialogFragmentsToPush)
-					{
-						dialogFragment.Fragment.Show(appCompatActivity.SupportFragmentManager, dialogFragment.FragmentTag);
-					}
+					transaction = transaction.Replace(fragmentActivity.FragmentContainerId, fragmentInnerStack.Fragment, fragmentInnerStack.FragmentTag);
 				}
 			}
 
-			else
-			{
-				if (transaction != null && navigationStack.Top is ActivityInnerStack<TViewModel> activityTop && activityTop.FragmentStack.Count > 0)
-				{
-					if (activityTop.FragmentStack[activityTop.FragmentStack.Count - 1] is FragmentInnerStack<TViewModel> fragmentInnerStack)
-					{
-						transaction = transaction.Replace(fragmentActivity.FragmentContainerId, fragmentInnerStack.Fragment, fragmentInnerStack.FragmentTag);
-					}
-				}
+			transaction?.CommitAllowingStateLoss();
 
-				transaction?.CommitAllowingStateLoss();
+			if (dialogFragmentToPush != null && dialogFragmentToPush.Count > 0)
+			{
+				foreach (DialogFragmentInnerStack<TViewModel> dialogFragment in dialogFragmentToPush)
+				{
+
+					dialogFragment.Fragment.Show(appCompatActivity.SupportFragmentManager, dialogFragment.FragmentTag);
+				}
 			}
 		}
 	}
