@@ -380,7 +380,7 @@ namespace Xmf2.NavigationGraph.Droid
 			else if (transaction != null)
 			{
 				ActivityInnerStack<TViewModel> activityTop;
-				if (dialogFragmentToPush != null & dialogFragmentToPush.Count > 0)
+				if (dialogFragmentToPush != null && dialogFragmentToPush.Count > 0)
 				{
 					activityTop = navigationStack.FindFirstOfType<ActivityInnerStack<TViewModel>>();
 				}
