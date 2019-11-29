@@ -374,7 +374,6 @@ namespace Xmf2.NavigationGraph.Droid
 
 					transaction.AddToBackStack(fragmentStack.FragmentTag);
 					transaction = transaction.Replace(fragmentActivity.FragmentContainerId, fragmentStack.Fragment, fragmentStack.FragmentTag);
-					break;
 				}
 			}
 			else if (transaction != null)
