@@ -17,7 +17,7 @@ namespace Xmf2.NavigationGraph.Droid.Bases
 
 		protected abstract IViewModelLocatorService<TViewModel> ViewModelLocatorService { get; }
 
-		public BaseFragment() { }
+		protected BaseFragment() { }
 
 		protected BaseFragment(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
 
@@ -30,6 +30,7 @@ namespace Xmf2.NavigationGraph.Droid.Bases
 		public override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
+
 			if (string.IsNullOrEmpty(ScreenRoute) && savedInstanceState != null)
 			{
 				ScreenRoute = savedInstanceState.GetString(VIEWMODEL_ROUTE);
