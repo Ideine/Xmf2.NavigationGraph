@@ -15,10 +15,13 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
+
   - task: NuGetCommand@2
     inputs:
       command: 'restore'
       restoreSolution: 'Xmf2.NavigationGraph.sln'
+      feedsToUse: 'select'
+      vstsFeed: 'abac689f-cba8-49fc-aa05-4525b9107b76'
 
   - task: VSBuild@1
     displayName: Build Package
