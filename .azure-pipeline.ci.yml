@@ -23,7 +23,7 @@ steps:
   - task: VSBuild@1
     displayName: Build Package
     inputs:
-      solution: Xmf2.Licences.sln
+      solution: Xmf2.NavigationGraph.sln
       platform: 'any cpu'
       configuration: 'release'
       maximumCpuCount: true
