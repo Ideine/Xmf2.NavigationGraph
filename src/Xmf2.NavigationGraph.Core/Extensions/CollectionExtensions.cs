@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 
 namespace Xmf2.NavigationGraph.Core.Extensions
 {
-	public static class CollectionExtensions
+	internal static class CollectionExtensions
 	{
+		// todo à mettre dans une lib d'extensions netstandard ?
 		public static List<T> Sublist<T>(this IList<T> source, int start, int count)
 		{
 			var result = new List<T>(count);
@@ -12,17 +12,6 @@ namespace Xmf2.NavigationGraph.Core.Extensions
 			for (var i = start; i < end; ++i)
 			{
 				result.Add(source[i]);
-			}
-
-			return result;
-		}
-
-		public static List<TResult> ConvertAll<TSource, TResult>(this IReadOnlyList<TSource> source, Func<TSource, TResult> mapper)
-		{
-			var result = new List<TResult>(source.Count);
-			for (var i = 0; i < source.Count; i++)
-			{
-				result.Add(mapper(source[i]));
 			}
 
 			return result;

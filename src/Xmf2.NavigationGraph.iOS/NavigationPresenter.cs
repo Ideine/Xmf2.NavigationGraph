@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UIKit;
 using Xmf2.DisposableExtensions;
@@ -40,7 +41,7 @@ namespace Xmf2.NavigationGraph.iOS
 				return;
 			}
 
-			List<PushInformation<TViewModel>> controllersToPush = navigationOperation.Pushes.ConvertAll(x => new PushInformation<TViewModel>(_factoryAssociation[x.Screen], x.Instance));
+			var controllersToPush = navigationOperation.Pushes.Select(x => new PushInformation<TViewModel>(_factoryAssociation[x.Screen], x.Instance));
 
 			foreach (var push in navigationOperation.Pushes)
 			{

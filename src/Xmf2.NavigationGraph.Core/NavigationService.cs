@@ -47,10 +47,8 @@ namespace Xmf2.NavigationGraph.Core
 		{
 			var result = _navigationGraph.FindWithRoute(route).ToList();
 
-#if DEBUG
-			Console.WriteLine($"Navigating to route {route}");
-			Console.WriteLine($"\tUse stack: {string.Join(", ", result.Select(x => x.ToString()))}");
-#endif
+			System.Diagnostics.Debug.WriteLine($"Navigating to route {route}");
+			System.Diagnostics.Debug.WriteLine($"\tUse stack: {string.Join(", ", result.Select(x => x.ToString()))}");
 
 			await UpdateNavigationStack(result);
 		}
@@ -60,10 +58,8 @@ namespace Xmf2.NavigationGraph.Core
 			var screenInstance = new ScreenInstance<TViewModel>(screen, parameter, viewModelCreator);
 			var result = _navigationGraph.FindBestStack(_navigationStack, screenInstance).ToList();
 
-#if DEBUG
-			Console.WriteLine($"Navigating to {screen.RelativeRoute}");
-			Console.WriteLine($"\tUse stack: {string.Join(", ", result.Select(x => x.ToString()))}");
-#endif
+			System.Diagnostics.Debug.WriteLine($"Navigating to {screen.RelativeRoute}");
+			System.Diagnostics.Debug.WriteLine($"\tUse stack: {string.Join(", ", result.Select(x => x.ToString()))}");
 
 			await UpdateNavigationStack(result);
 		}
@@ -76,15 +72,13 @@ namespace Xmf2.NavigationGraph.Core
 			}
 
 			var newStack = new List<ScreenInstance<TViewModel>>(_navigationStack.Count - 1);
-			for (var i = 0 ; i < _navigationStack.Count - 1 ; i++)
+			for (var i = 0; i < _navigationStack.Count - 1; i++)
 			{
 				newStack.Add(_navigationStack[i]);
 			}
 
-#if DEBUG
-			Console.WriteLine($"Navigation: Close");
-			Console.WriteLine($"\tUse stack: {string.Join(", ", newStack.Select(x => x.ToString()))}");
-#endif
+			System.Diagnostics.Debug.WriteLine($"Navigation: Close");
+			System.Diagnostics.Debug.WriteLine($"\tUse stack: {string.Join(", ", newStack.Select(x => x.ToString()))}");
 
 			await UpdateNavigationStack(newStack);
 		}
@@ -121,11 +115,11 @@ namespace Xmf2.NavigationGraph.Core
 			for (;
 				commonIndexLimit < newNavigationStack.Count &&
 				commonIndexLimit < _navigationStack.Count &&
-				newNavigationStack[commonIndexLimit] == _navigationStack[commonIndexLimit] ;
+				newNavigationStack[commonIndexLimit] == _navigationStack[commonIndexLimit];
 				++commonIndexLimit) { }
 
 			//generate pop instructions
-			for (int i = _navigationStack.Count - 1 ; i >= commonIndexLimit ; i--)
+			for (int i = _navigationStack.Count - 1; i >= commonIndexLimit; i--)
 			{
 				navigationOperation.Add(new PopAction<TViewModel>(_navigationStack[i]));
 			}
@@ -138,7 +132,7 @@ namespace Xmf2.NavigationGraph.Core
 				_navigationStack.Capacity = newNavigationStack.Count + 3; //Why 3 ? because we could use some margin and 3 is a nice small number !
 			}
 
-			for (int i = commonIndexLimit ; i < newNavigationStack.Count ; ++i)
+			for (int i = commonIndexLimit; i < newNavigationStack.Count; ++i)
 			{
 				navigationOperation.Add(new PushAction<TViewModel>(newNavigationStack[i]));
 				_navigationStack.Add(newNavigationStack[i]);

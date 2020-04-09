@@ -7,9 +7,7 @@ namespace Xmf2.NavigationGraph.Core.NavigationActions
 	{
 		internal PushAction(ScreenInstance<TViewModel> screen) : base(screen)
 		{
-#if DEBUG
-			Console.WriteLine($"\t\tPush: {screen.Definition.RelativeRoute} (parameter: {screen.Parameter})");
-#endif
+			System.Diagnostics.Debug.WriteLine($"\t\tPush: {screen.Definition.RelativeRoute} (parameter: {screen.Parameter})");
 		}
 	}
 }
