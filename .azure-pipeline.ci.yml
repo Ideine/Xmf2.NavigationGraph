@@ -1,0 +1,45 @@
+resources:
+  repositories:
+    - repository: self
+      checkoutOptions:
+        clean: true
+        fetchDepth: 5
+        lfs: false
+
+trigger:
+  - master
+
+name: Xmf2.NavigationGraph-CI-$(Date:yyyyMMdd)$(Rev:.r)
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+
+  - task: NuGetCommand@2
+    inputs:
+      command: 'restore'
+      restoreSolution: 'Xmf2.NavigationGraph.sln'
+      feedsToUse: 'select'
+      vstsFeed: 'abac689f-cba8-49fc-aa05-4525b9107b76'
+
+  - task: VSBuild@1
+    displayName: Build Package
+    inputs:
+      solution: Xmf2.NavigationGraph.sln
+      platform: 'any cpu'
+      configuration: 'release'
+      maximumCpuCount: true
+    condition: succeeded()
+
+  - task: NuGetCommand@2
+    inputs:
+      command: 'pack'
+      packagesToPack: 'package.nuspec'
+      versioningScheme: 'off'
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact: drop"
+    inputs:
+      PathtoPublish: '$(build.artifactstagingdirectory)'
+    condition: succeeded()

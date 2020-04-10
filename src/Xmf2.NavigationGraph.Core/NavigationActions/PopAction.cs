@@ -7,9 +7,7 @@ namespace Xmf2.NavigationGraph.Core.NavigationActions
 	{
 		internal PopAction(ScreenInstance<TViewModel> screen) : base(screen)
 		{
-#if DEBUG
-			Console.WriteLine($"\t\tPop: {screen.Definition.RelativeRoute} (parameter: {screen.Parameter})");
-#endif
+			System.Diagnostics.Debug.WriteLine($"\t\tPop: {screen.Definition.RelativeRoute} (parameter: {screen.Parameter})");
 		}
 	}
 }

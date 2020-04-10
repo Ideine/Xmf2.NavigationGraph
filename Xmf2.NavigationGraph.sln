@@ -6,6 +6,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xmf2.NavigationGraph.iOS", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xmf2.NavigationGraph.Droid", "src\Xmf2.NavigationGraph.Droid\Xmf2.NavigationGraph.Droid.csproj", "{0482135D-405D-4F90-8542-09C3E64A1AA2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{B785351A-407E-4BE8-BC57-031184712788}"
+ProjectSection(SolutionItems) = preProject
+	package.nuspec = package.nuspec
+	.azure-pipeline.ci.yml = .azure-pipeline.ci.yml
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

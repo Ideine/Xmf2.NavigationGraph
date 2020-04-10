@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Support.V7.App;
@@ -110,7 +111,7 @@ namespace Xmf2.NavigationGraph.Droid
 				return;
 			}
 
-			var controllersToPush = navigationOperation.Pushes.ConvertAll(x => new PushInformation<TViewModel>(_factoryAssociation[x.Screen], x.Instance));
+			var controllersToPush = navigationOperation.Pushes.Select(x => new PushInformation<TViewModel>(_factoryAssociation[x.Screen], x.Instance)).ToList();
 
 			foreach (var push in navigationOperation.Pushes)
 			{
