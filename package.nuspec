@@ -3,7 +3,7 @@
   <metadata>
     <id>Xmf2.NavigationGraph</id>
     <title>Xmf2.NavigationGraph</title>
-    <version>1.0.0</version>
+    <version>1.0.0-pre2</version>
     <authors>Ideine, VJubert</authors>
     <owners>Ideine, VJubert</owners>
     <projectUrl>https://github.com/Ideine/Xmf2.NavigationGraph</projectUrl>
@@ -15,9 +15,17 @@
     <copyright>Copyright Ideine 2020</copyright>
     <tags>xmf2 ideine navigationgraph</tags>
     <dependencies>
-      <group targetFramework="netstandard2.0"/>
-      <group targetFramework="monoandroid90"/>
-      <group targetFramework="xamarinios10"/>
+      <group targetFramework="netstandard2.0">
+        <dependency id="Xmf2.DisposableExtensions" version="1.0.0" />
+      </group>
+      <group targetFramework="monoandroid90">
+        <dependency id="Plugin.CurrentActivity" version="1.0.0" />
+        <dependency id="Xamarin.Android.Support.v7.AppCompat" version="27.0.2.1" />
+        <dependency id="Xmf2.DisposableExtensions" version="1.0.0" />      
+      </group>
+      <group targetFramework="xamarinios10">
+        <dependency id="Xmf2.DisposableExtensions" version="1.0.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
