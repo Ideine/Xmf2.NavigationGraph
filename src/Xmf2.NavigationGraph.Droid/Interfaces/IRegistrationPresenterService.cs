@@ -1,6 +1,11 @@
 using System;
+#if __ANDROID_29__
+using AndroidX.AppCompat.App;
+using AndroidX.Fragment.App;
+#else
 using Android.Support.V4.App;
 using Android.Support.V7.App;
+#endif
 using Xmf2.NavigationGraph.Core;
 using Xmf2.NavigationGraph.Core.Interfaces;
 
