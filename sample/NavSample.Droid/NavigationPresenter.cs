@@ -23,36 +23,6 @@ namespace NavSample.Droid
      *  stackBuilder.addNextIntent(intentEmailView);
 	 */
 
-	public interface IDeferredNavigationAction
-	{
-		void Execute(Activity activity);
-	}
-
-	public static class NavigationParameterContainer
-	{
-		private static readonly Dictionary<string, object> _parameters = new Dictionary<string, object>();
-
-		internal static string CreateNavigationParameter(object parameter)
-		{
-			string key = $"{parameter.GetType().Name}+{Guid.NewGuid():N}";
-			_parameters.Add(key, parameter);
-			return key;
-		}
-
-		public static IViewModel GetViewModel(string key) => Get<IViewModel>(key);
-		public static IDeferredNavigationAction GetDeferredNavigationAction(string key) => Get<IDeferredNavigationAction>(key);
-
-		private static T Get<T>(string key)
-		{
-			if (_parameters.TryGetValue(key, out object result))
-			{
-				return (T)result;
-			}
-
-			throw new ArgumentOutOfRangeException($"The key {key} does not match any navigation parameters");
-		}
-	}
-
 	public class SampleNavigationPresenter : NavigationPresenter<SampleViewModel>
 	{
 		public SampleNavigationPresenter(IViewModelLocatorService<SampleViewModel> viewModelLocatorService) : base(viewModelLocatorService)

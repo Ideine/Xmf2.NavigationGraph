@@ -1,5 +1,6 @@
 using NavSample.Core;
 using Xmf2.NavigationGraph.Core;
+using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid.Interfaces;
 
 namespace NavSample.Droid
@@ -7,12 +8,12 @@ namespace NavSample.Droid
 	public static class Bootstrap
 	{
 		public static SampleNavigationService Navigation { get; private set; }
-		private static ViewModelLocatorService<SampleViewModel> _viewModelLocatorService;
+		private static IViewModelLocatorService<SampleViewModel> _viewModelLocatorService;
 		private static SampleNavigationPresenter _presenter;
 
 		public static void Initialize()
 		{
-			_viewModelLocatorService = new ViewModelLocatorService<SampleViewModel>();
+			_viewModelLocatorService =  ViewModelLocatorService<SampleViewModel>.Instance;
 			_presenter = new SampleNavigationPresenter(_viewModelLocatorService);
 			Navigation = new SampleNavigationService(_presenter);
 

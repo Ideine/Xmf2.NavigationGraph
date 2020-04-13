@@ -2,11 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-				<LangVersion>latest</LangVersion>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Xmf2.DisposableExtensions" Version="1.0.0" />
+        <PackageReference Include="Xmf2.DisposableExtensions" Version="1.0.0" />
     </ItemGroup>
 
 </Project>

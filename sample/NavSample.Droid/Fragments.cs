@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Android.Graphics;
 using Android.OS;
-using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
+using AndroidX.Fragment.App;
 
 namespace NavSample.Droid
 {

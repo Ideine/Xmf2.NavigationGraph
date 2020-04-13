@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xmf2.NavigationGraph.Core\Xmf2.NavigationGraph.Core.csproj">
-      <Project>{F99CE52B-E989-43D6-A511-E6E9724C9054}</Project>
+      <Project>{F1EB5F1F-4AD4-45A2-9F39-B291B11C9B1B}</Project>
       <Name>Xmf2.NavigationGraph.Core</Name>
     </ProjectReference>
   </ItemGroup>

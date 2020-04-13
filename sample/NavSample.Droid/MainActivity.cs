@@ -1,9 +1,11 @@
 ﻿using Android.App;
 using Android.OS;
-using Android.Support.V7.App;
 using Android.Widget;
+using AndroidX.AppCompat.App;
+using NavSample.Core;
 using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid;
+using Xmf2.NavigationGraph.Droid.Interfaces;
 
 namespace NavSample.Droid
 {
@@ -24,13 +26,13 @@ namespace NavSample.Droid
 				if (Intent.Extras.ContainsKey(NavigationConstants.VIEWMODEL_LINK_PARAMETER_CODE))
 				{
 					string viewModelKey = Intent.Extras.GetString(NavigationConstants.VIEWMODEL_LINK_PARAMETER_CODE);
-					ViewModel = NavigationParameterContainer.GetViewModel(viewModelKey);
+					ViewModel = NavigationParameterContainer<SampleViewModel>.GetViewModel(viewModelKey);
 				}
 
 				if (Intent.Extras.ContainsKey(NavigationConstants.FRAGMENT_START_PARAMETER_CODE))
 				{
 					string navigationKey = Intent.Extras.GetString(NavigationConstants.FRAGMENT_START_PARAMETER_CODE);
-					IDeferredNavigationAction deferredNavigationAction = NavigationParameterContainer.GetDeferredNavigationAction(navigationKey);
+					IDeferredNavigationAction deferredNavigationAction = NavigationParameterContainer<SampleViewModel>.GetDeferredNavigationAction(navigationKey);
 					deferredNavigationAction.Execute(this);
 				}
 			}
