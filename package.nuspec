@@ -3,7 +3,7 @@
     <metadata>
         <id>Xmf2.NavigationGraph</id>
         <title>Xmf2.NavigationGraph</title>
-        <version>1.1.0-pre1</version>
+        <version>1.1.0-pre2</version>
         <authors>Ideine, VJubert</authors>
         <owners>Ideine, VJubert</owners>
         <projectUrl>https://github.com/Ideine/Xmf2.NavigationGraph</projectUrl>
@@ -30,7 +30,7 @@
             </group>
             <group targetFramework="monoandroid10.0">
                 <dependency id="Plugin.CurrentActivity" version="2.1.0.4"/>
-                <dependency id="Xamarin.AndroidX.AppCompat" version="27.0.2.1"/>
+                <dependency id="Xamarin.AndroidX.AppCompat" version="1.1.0"/>
                 <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
             </group>
             <group targetFramework="xamarinios10">
