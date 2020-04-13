@@ -49,7 +49,7 @@
         <Compile Include="Operations\PopOperation.cs" />
         <Compile Include="Operations\PushOperation.cs" />
         <Compile Include="PushInformation.cs" />
-  </ItemGroup>
+    </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
         <PackageReference Include="Xmf2.DisposableExtensions" Version="1.0.0" />
