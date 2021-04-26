@@ -134,7 +134,7 @@ namespace Xmf2.NavigationGraph.Core
 
 			for (int i = commonIndexLimit; i < newNavigationStack.Count; ++i)
 			{
-				navigationOperation.Add(new PushAction<TViewModel>(newNavigationStack[i]));
+				navigationOperation.Add(new PushAction<TViewModel>(newNavigationStack[i], string.Join("/",newNavigationStack.Take(i+1).Select(x=>string.IsNullOrEmpty(x.Parameter)?x.Definition.RelativeRoute:$"{x.Parameter}"))));
 				_navigationStack.Add(newNavigationStack[i]);
 			}
 

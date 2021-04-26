@@ -119,7 +119,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			foreach (var push in navigationOperation.Pushes)
 			{
-				await push.Instance.GetViewModel(""); //TODO: add route here
+				await push.Instance.GetViewModel(push.BaseRoute); //TODO: add route here
 			}
 
 			if (navigationInProgress.IsCancelled)
