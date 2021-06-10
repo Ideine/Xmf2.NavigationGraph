@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 #if __ANDROID_29__
 using AndroidX.AppCompat.App;
 using AndroidX.Fragment.App;
@@ -14,7 +15,6 @@ using Xmf2.NavigationGraph.Droid.Factories;
 using Xmf2.NavigationGraph.Droid.InnerStacks;
 using Xmf2.NavigationGraph.Droid.Interfaces;
 using Xmf2.NavigationGraph.Droid.Operations;
-using System.Linq;
 
 namespace Xmf2.NavigationGraph.Droid
 {
@@ -349,11 +349,7 @@ namespace Xmf2.NavigationGraph.Droid
 					}
 					else if (fragmentStack is FragmentInnerStack<TViewModel> fragmentInnerStack)
 					{
-						if (fragmentListToPop is null)
-						{
-							fragmentListToPop = new List<FragmentInnerStack<TViewModel>>(fragmentsToPop.Count);
-						}
-
+						fragmentListToPop ??= new List<FragmentInnerStack<TViewModel>>(fragmentsToPop.Count);
 						fragmentListToPop.Add(fragmentInnerStack);
 					}
 				}
@@ -372,11 +368,7 @@ namespace Xmf2.NavigationGraph.Droid
 			{
 				foreach (IFragmentInnerStack fragmentStack in normalFragmentToPush)
 				{
-					if (transaction is null)
-					{
-						transaction = appCompatActivity.SupportFragmentManager.BeginTransaction();
-					}
-
+					transaction ??= appCompatActivity.SupportFragmentManager.BeginTransaction();
 					transaction.AddToBackStack(fragmentStack.FragmentTag);
 					transaction = transaction.Replace(fragmentActivity.FragmentContainerId, fragmentStack.Fragment, fragmentStack.FragmentTag);
 				}

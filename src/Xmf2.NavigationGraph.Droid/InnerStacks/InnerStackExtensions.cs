@@ -7,19 +7,14 @@ namespace Xmf2.NavigationGraph.Droid.InnerStacks
 	{
 		internal static ActivityInnerStack<TViewModel> GetActivityInnerStack<TViewModel>(this InnerStack<TViewModel> item) where TViewModel : IViewModel
 		{
-			switch (item)
+			return item switch
 			{
-				case null:
-					return null;
-				case ActivityInnerStack<TViewModel> res:
-					return res;
-				case DialogFragmentInnerStack<TViewModel> dialogFragmentInnerStack:
-					return dialogFragmentInnerStack.FragmentHost;
-				case FragmentInnerStack<TViewModel> fragmentInnerStack:
-					return fragmentInnerStack.FragmentHost;
-				default:
-					throw new InvalidOperationException($"Unsupported inner stack type : {item.GetType().Name}");
-			}
+				null => null,
+				ActivityInnerStack<TViewModel> res => res,
+				DialogFragmentInnerStack<TViewModel> dialogFragmentInnerStack => dialogFragmentInnerStack.FragmentHost,
+				FragmentInnerStack<TViewModel> fragmentInnerStack => fragmentInnerStack.FragmentHost,
+				_ => throw new InvalidOperationException($"Unsupported inner stack type : {item.GetType().Name}")
+			};
 		}
 	}
 }
