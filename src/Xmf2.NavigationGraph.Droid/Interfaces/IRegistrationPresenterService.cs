@@ -32,5 +32,7 @@ namespace Xmf2.NavigationGraph.Droid.Interfaces
 		void AssociateDialogFragment<TFragmentHost, TDialogFragment>(ScreenDefinition<TViewModel> screenDefinition, Func<TDialogFragment> fragmentCreator)
 			where TFragmentHost : AppCompatActivity
 			where TDialogFragment : DialogFragment;
+
+		void ReplaceDisposedFragment(Fragment fragment);
 	}
 }

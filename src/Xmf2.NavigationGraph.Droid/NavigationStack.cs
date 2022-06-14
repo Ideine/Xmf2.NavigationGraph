@@ -3,9 +3,11 @@ using System.Collections.Generic;
 #if __ANDROID_29__
 using AndroidX.AppCompat.App;
 using AndroidX.Fragment.App;
+using Fragment = AndroidX.Fragment.App.Fragment;
 #else
 using Android.App;
 using Android.Support.V7.App;
+using Fragment = Android.Support.V4.App.Fragment;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 #endif
 using Plugin.CurrentActivity;
@@ -253,7 +255,7 @@ namespace Xmf2.NavigationGraph.Droid
 			return pushOperations;
 		}
 
-		private bool TryMerge(PopOperation op1, PopOperation op2, out PopOperation res)
+		private static bool TryMerge(PopOperation op1, PopOperation op2, out PopOperation res)
 		{
 			if (op1 is FragmentPopOperation<TViewModel> fragmentPopOperation)
 			{
@@ -281,7 +283,7 @@ namespace Xmf2.NavigationGraph.Droid
 			return false;
 		}
 
-		private bool TryMerge(PushOperation op1, PushOperation op2, out PushOperation res)
+		private static bool TryMerge(PushOperation op1, PushOperation op2, out PushOperation res)
 		{
 			if (op1 is ActivityPushOperation<TViewModel> startActivityPushOperation)
 			{
@@ -399,6 +401,27 @@ namespace Xmf2.NavigationGraph.Droid
 				foreach (DialogFragmentInnerStack<TViewModel> dialogFragment in dialogFragmentToPush)
 				{
 					dialogFragment.Fragment.Show(appCompatActivity.SupportFragmentManager, dialogFragment.FragmentTag);
+				}
+			}
+		}
+
+		public void ReplaceDisposedFragment(Fragment fragment)
+		{
+			foreach (InnerStack<TViewModel> innerStack in _innerStacks)
+			{
+				if (innerStack is FragmentInnerStack<TViewModel> fragmentStack1 && fragmentStack1.FragmentTag == fragment.Tag)
+				{
+					fragmentStack1.Fragment = fragment;
+				}
+				else if (innerStack is ActivityInnerStack<TViewModel> activityInnerStack && activityInnerStack.FragmentStack.Count > 0)
+				{
+					foreach (InnerStack<TViewModel> stack in activityInnerStack.FragmentStack)
+					{
+						if (stack is FragmentInnerStack<TViewModel> fragmentInnerStack2 && fragmentInnerStack2.FragmentTag == fragment.Tag)
+						{
+							fragmentInnerStack2.Fragment = fragment;
+						}
+					}
 				}
 			}
 		}

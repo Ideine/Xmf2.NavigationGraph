@@ -108,6 +108,11 @@ namespace Xmf2.NavigationGraph.Droid
 			AssociateDialogFragment(screenDefinition, fragmentCreator, typeof(TFragmentHost));
 		}
 
+		public void ReplaceDisposedFragment(Fragment fragment)
+		{
+			_navigationStack.ReplaceDisposedFragment(fragment);
+		}
+
 		public async Task UpdateNavigation(NavigationOperation<TViewModel> navigationOperation, INavigationInProgress navigationInProgress)
 		{
 			if (navigationOperation.Pushes.Count == 0 && navigationOperation.Pops.Count == 0)

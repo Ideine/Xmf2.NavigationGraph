@@ -15,6 +15,8 @@ namespace Xmf2.NavigationGraph.Droid.Bases
 	{
 		protected const string VIEWMODEL_ROUTE = nameof(VIEWMODEL_ROUTE);
 
+		protected abstract IRegistrationPresenterService<TViewModel> PresenterService { get; }
+
 		protected virtual TViewModel ViewModel { get; set; }
 
 		public string ScreenRoute { get; set; }
@@ -41,6 +43,11 @@ namespace Xmf2.NavigationGraph.Droid.Bases
 			}
 
 			ViewModel = ViewModelLocatorService.GetViewModel(ScreenRoute);
+
+			if (savedInstanceState != null)
+			{
+				PresenterService?.ReplaceDisposedFragment(this);
+			}
 		}
 
 		protected override void Dispose(bool disposing)

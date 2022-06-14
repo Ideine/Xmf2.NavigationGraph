@@ -14,7 +14,7 @@ namespace Xmf2.NavigationGraph.Droid.InnerStacks
 	{
 		public ActivityInnerStack<TViewModel> FragmentHost { get; }
 
-		public Fragment Fragment { get; }
+		public Fragment Fragment { get; internal set; }
 
 		public string FragmentTag { get; }
 
