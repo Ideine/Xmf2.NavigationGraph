@@ -13,7 +13,7 @@ namespace Xmf2.NavigationGraph.Droid.Operations
 
 		public IViewModel ViewModel { get; }
 
-		public List<IFragmentInnerStack> FragmentStacksToPush { get; } = new List<IFragmentInnerStack>();
+		public List<IFragmentInnerStack> FragmentStacksToPush { get; } = new();
 
 		public ActivityPushOperation(ActivityInnerStack<TViewModel> activityStack, IViewModel viewModel)
 		{
@@ -23,7 +23,7 @@ namespace Xmf2.NavigationGraph.Droid.Operations
 
 		public override void Execute(Activity activity)
 		{
-			Intent intent = new Intent(activity, ActivityStack.ActivityType);
+			Intent intent = new(activity, ActivityStack.ActivityType);
 			if (ActivityStack.ShouldClearHistory)
 			{
 				intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.NewTask);

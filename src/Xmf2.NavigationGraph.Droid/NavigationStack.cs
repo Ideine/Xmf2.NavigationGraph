@@ -21,18 +21,18 @@ namespace Xmf2.NavigationGraph.Droid
 	internal class NavigationStack<TViewModel> where TViewModel : IViewModel
 	{
 		private readonly IViewModelLocatorService<TViewModel> _viewModelLocatorService;
-		private readonly List<InnerStack<TViewModel>> _innerStacks = new List<InnerStack<TViewModel>>();
+		private readonly List<InnerStack<TViewModel>> _innerStacks = new();
 
 		public NavigationStack(IViewModelLocatorService<TViewModel> viewModelLocatorService)
 		{
 			_viewModelLocatorService = viewModelLocatorService;
 		}
 
-		private InnerStack<TViewModel> Top => _innerStacks[_innerStacks.Count - 1];
+		private InnerStack<TViewModel> Top => _innerStacks[^1];
 
 		private T FindFirstOfType<T>() where T : InnerStack<TViewModel>
 		{
-			for (int index = _innerStacks.Count - 1; index >= 0; index--)
+			for (int index = _innerStacks.Count - 1 ; index >= 0 ; index--)
 			{
 				InnerStack<TViewModel> stack = _innerStacks[index];
 				if (stack is T result)
@@ -44,13 +44,13 @@ namespace Xmf2.NavigationGraph.Droid
 			return null;
 		}
 
-		public void ApplyActions(int popsCount, List<PushInformation<TViewModel>> pushesInformations)
+		internal void ApplyActions(int popsCount, List<PushInformation<TViewModel>> pushesInformation)
 		{
 			List<PopOperation> pops = Pop(popsCount);
-			List<PushOperation> pushes = Push(pushesInformations);
+			List<PushOperation> pushes = Push(pushesInformation);
 			MergedPopPushOperation mergedOp = null;
 
-			if (pops.Count > 0 && pushes.Count > 0 && TryMerge(pops[pops.Count - 1], pushes[0], out mergedOp))
+			if (pops.Count > 0 && pushes.Count > 0 && TryMerge(pops[^1], pushes[0], out mergedOp))
 			{
 				pops.RemoveAt(pops.Count - 1);
 				pushes.RemoveAt(0);
@@ -79,10 +79,10 @@ namespace Xmf2.NavigationGraph.Droid
 				return new List<PopOperation>();
 			}
 
-			List<PopOperation> popOperations = new List<PopOperation>();
+			List<PopOperation> popOperations = new();
 
 			int lastInnerStackPopIndex = _innerStacks.Count;
-			for (int i = _innerStacks.Count - 1; i >= 0; i--)
+			for (int i = _innerStacks.Count - 1 ; i >= 0 ; i--)
 			{
 				var item = _innerStacks[i];
 				if (item.Count <= popCount)
@@ -109,12 +109,12 @@ namespace Xmf2.NavigationGraph.Droid
 					throw new InvalidOperationException("Trying to close more views than existing");
 				}
 
-				popOperations.Add(_innerStacks[_innerStacks.Count - 1].AsSpecificPopOperation(popCount));
+				popOperations.Add(_innerStacks[^1].AsSpecificPopOperation(popCount));
 			}
 
 			//simplify list of pop operations
 			int insertIndex = 0;
-			for (int i = 1; i < popOperations.Count; i++)
+			for (int i = 1 ; i < popOperations.Count ; i++)
 			{
 				if (TryMerge(popOperations[insertIndex], popOperations[i], out PopOperation op))
 				{
@@ -139,16 +139,16 @@ namespace Xmf2.NavigationGraph.Droid
 			return popOperations;
 		}
 
-		private List<PushOperation> Push(List<PushInformation<TViewModel>> pushInformations)
+		private List<PushOperation> Push(List<PushInformation<TViewModel>> pushInformationList)
 		{
 			List<PushOperation> pushOperations = new List<PushOperation>();
 			InnerStack<TViewModel> top = null;
 			if (_innerStacks.Count > 0)
 			{
-				top = _innerStacks[_innerStacks.Count - 1];
+				top = _innerStacks[^1];
 			}
 
-			foreach (var pushInformation in pushInformations)
+			foreach (var pushInformation in pushInformationList)
 			{
 				if (pushInformation.Factory is ActivityViewFactory activityViewFactory)
 				{
@@ -191,7 +191,7 @@ namespace Xmf2.NavigationGraph.Droid
 				}
 				else if (pushInformation.Factory is FragmentViewFactory fragmentViewFactory)
 				{
-					var activityHost = top.GetActivityInnerStack();
+					ActivityInnerStack<TViewModel> activityHost = top.GetActivityInnerStack();
 					if (activityHost == null)
 					{
 						//need to push the activity first
@@ -228,7 +228,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			//simplify list of pop operations
 			int insertIndex = 0;
-			for (int i = 1; i < pushOperations.Count; i++)
+			for (int i = 1 ; i < pushOperations.Count ; i++)
 			{
 				if (TryMerge(pushOperations[insertIndex], pushOperations[i], out PushOperation op))
 				{
@@ -349,11 +349,7 @@ namespace Xmf2.NavigationGraph.Droid
 					}
 					else if (fragmentStack is FragmentInnerStack<TViewModel> fragmentInnerStack)
 					{
-						if (fragmentListToPop is null)
-						{
-							fragmentListToPop = new List<FragmentInnerStack<TViewModel>>(fragmentsToPop.Count);
-						}
-
+						fragmentListToPop ??= new List<FragmentInnerStack<TViewModel>>(fragmentsToPop.Count);
 						fragmentListToPop.Add(fragmentInnerStack);
 					}
 				}
@@ -372,10 +368,7 @@ namespace Xmf2.NavigationGraph.Droid
 			{
 				foreach (IFragmentInnerStack fragmentStack in normalFragmentToPush)
 				{
-					if (transaction is null)
-					{
-						transaction = appCompatActivity.SupportFragmentManager.BeginTransaction();
-					}
+					transaction ??= appCompatActivity.SupportFragmentManager.BeginTransaction();
 
 					transaction.AddToBackStack(fragmentStack.FragmentTag);
 					transaction = transaction.Replace(fragmentActivity.FragmentContainerId, fragmentStack.Fragment, fragmentStack.FragmentTag);
@@ -393,7 +386,7 @@ namespace Xmf2.NavigationGraph.Droid
 					activityTop = navigationStack.Top as ActivityInnerStack<TViewModel>;
 				}
 
-				if (activityTop != null && activityTop.FragmentStack.Count > 0 && activityTop.FragmentStack[activityTop.FragmentStack.Count - 1] is FragmentInnerStack<TViewModel> fragmentInnerStack)
+				if (activityTop != null && activityTop.FragmentStack.Count > 0 && activityTop.FragmentStack[^1] is FragmentInnerStack<TViewModel> fragmentInnerStack)
 				{
 					transaction = transaction.Replace(fragmentActivity.FragmentContainerId, fragmentInnerStack.Fragment, fragmentInnerStack.FragmentTag);
 				}
@@ -405,7 +398,6 @@ namespace Xmf2.NavigationGraph.Droid
 			{
 				foreach (DialogFragmentInnerStack<TViewModel> dialogFragment in dialogFragmentToPush)
 				{
-
 					dialogFragment.Fragment.Show(appCompatActivity.SupportFragmentManager, dialogFragment.FragmentTag);
 				}
 			}

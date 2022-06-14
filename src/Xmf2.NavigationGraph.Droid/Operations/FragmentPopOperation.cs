@@ -15,7 +15,7 @@ namespace Xmf2.NavigationGraph.Droid.Operations
 	{
 		public ActivityInnerStack<TViewModel> HostStack { get; }
 
-		public List<IFragmentInnerStack> FragmentStacksToPop { get; } = new List<IFragmentInnerStack>();
+		public List<IFragmentInnerStack> FragmentStacksToPop { get; } = new();
 
 		public FragmentPopOperation(ActivityInnerStack<TViewModel> hostStack)
 		{

@@ -14,7 +14,7 @@ namespace Xmf2.NavigationGraph.Droid.InnerStacks
 
 		public bool ShouldClearHistory { get; }
 
-		public List<InnerStack<TViewModel>> FragmentStack { get; } = new List<InnerStack<TViewModel>>();
+		public List<InnerStack<TViewModel>> FragmentStack { get; } = new();
 
 		public ActivityInnerStack(NavigationStack<TViewModel> navigationStack, Type activityType, bool activityIsOnlyAFragmentContainer, bool shouldClearHistory) : base(navigationStack)
 		{

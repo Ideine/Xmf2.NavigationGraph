@@ -7,7 +7,7 @@ namespace Xmf2.NavigationGraph.Droid
 {
 	public static class NavigationParameterContainer<TViewModel> where TViewModel : IViewModel
 	{
-		private static readonly Dictionary<string, object> _parameters = new Dictionary<string, object>();
+		private static readonly Dictionary<string, object> _parameters = new();
 
 		internal static string CreateNavigationParameter(object parameter)
 		{

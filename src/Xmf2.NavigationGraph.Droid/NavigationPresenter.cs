@@ -33,7 +33,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 	public class NavigationPresenter<TViewModel> : IPresenterService<TViewModel>, IRegistrationPresenterService<TViewModel> where TViewModel : IViewModel
 	{
-		private readonly Dictionary<ScreenDefinition<TViewModel>, ViewFactory> _factoryAssociation = new Dictionary<ScreenDefinition<TViewModel>, ViewFactory>();
+		private readonly Dictionary<ScreenDefinition<TViewModel>, ViewFactory> _factoryAssociation = new();
 		private readonly NavigationStack<TViewModel> _navigationStack;
 		private ActivityViewFactory _defaultFragmentHost;
 
