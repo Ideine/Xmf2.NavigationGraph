@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using Xmf2.NavigationGraph.Core.Extensions;
 using Xmf2.NavigationGraph.Core.Graph;
 using Xmf2.NavigationGraph.Core.Interfaces;
@@ -236,9 +237,11 @@ namespace Xmf2.NavigationGraph.Core
 							nodes = result;
 							return true;
 						}
-
-						internalLinks.Add(childNode, n); //links for backtracking
-						internalToProcess.Enqueue((level + 1, new ScreenNode<TViewModel>(childNode, new ScreenInstance<TViewModel>(childNode.Screen, parameter: null, viewModelCreator: null))));
+						else if(!childNode.Screen.IsInvisible)
+						{
+							internalLinks.Add(childNode, n); //links for backtracking
+							internalToProcess.Enqueue((level + 1, new ScreenNode<TViewModel>(childNode, new ScreenInstance<TViewModel>(childNode.Screen, parameter: null, viewModelCreator: null))));
+						}
 					}
 				}
 

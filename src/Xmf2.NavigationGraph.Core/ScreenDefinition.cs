@@ -16,6 +16,7 @@ namespace Xmf2.NavigationGraph.Core
 		public string ParameterName { get; }
 
 		public ViewModelCreator<TViewModel> DefaultViewModelCreator { get; }
+		public bool IsInvisible { get; set; }
 
 
 		public ScreenDefinition(string relativeRoute, SyncViewModelCreator<TViewModel> defaultViewModelCreator)
