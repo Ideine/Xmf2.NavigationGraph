@@ -30,9 +30,7 @@
     </metadata>
     <files>
         <file src="src\Xmf2.NavigationGraph.Core\bin\Release\netstandard2.0\*.dll;src\Xmf2.NavigationGraph.Core\bin\Release\netstandard2.0\*.pdb" target="lib\netstandard2.0"/>
-        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid81\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid81\*.pdb" target="lib\monoandroid81"/>
-        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid90\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid90\*.pdb" target="lib\monoandroid90"/>
-        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid10.0\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid10.0\*.pdb" target="lib\monoandroid10.0"/>
+        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid12.0\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid12.0\*.pdb" target="lib\monoandroid12.0"/>
         <file src="src\Xmf2.NavigationGraph.iOS\bin\Release\*.dll;src\Xmf2.NavigationGraph.iOS\bin\Release\*.pdb" target="lib\xamarinios10"/>
     </files>
 </package>
