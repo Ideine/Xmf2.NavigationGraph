@@ -1,22 +1,14 @@
 using System;
 using System.Collections.Generic;
-#if __ANDROID_29__
+using System.Linq;
 using AndroidX.AppCompat.App;
 using AndroidX.Fragment.App;
-using Fragment = AndroidX.Fragment.App.Fragment;
-#else
-using Android.App;
-using Android.Support.V7.App;
-using Fragment = Android.Support.V4.App.Fragment;
-using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
-#endif
 using Plugin.CurrentActivity;
 using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid.Factories;
 using Xmf2.NavigationGraph.Droid.InnerStacks;
 using Xmf2.NavigationGraph.Droid.Interfaces;
 using Xmf2.NavigationGraph.Droid.Operations;
-using System.Linq;
 
 namespace Xmf2.NavigationGraph.Droid
 {
@@ -34,7 +26,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 		private T FindFirstOfType<T>() where T : InnerStack<TViewModel>
 		{
-			for (int index = _innerStacks.Count - 1 ; index >= 0 ; index--)
+			for (int index = _innerStacks.Count - 1; index >= 0; index--)
 			{
 				InnerStack<TViewModel> stack = _innerStacks[index];
 				if (stack is T result)
@@ -84,7 +76,7 @@ namespace Xmf2.NavigationGraph.Droid
 			List<PopOperation> popOperations = new();
 
 			int lastInnerStackPopIndex = _innerStacks.Count;
-			for (int i = _innerStacks.Count - 1 ; i >= 0 ; i--)
+			for (int i = _innerStacks.Count - 1; i >= 0; i--)
 			{
 				var item = _innerStacks[i];
 				if (item.Count <= popCount)
@@ -116,7 +108,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			//simplify list of pop operations
 			int insertIndex = 0;
-			for (int i = 1 ; i < popOperations.Count ; i++)
+			for (int i = 1; i < popOperations.Count; i++)
 			{
 				if (TryMerge(popOperations[insertIndex], popOperations[i], out PopOperation op))
 				{
@@ -230,7 +222,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			//simplify list of pop operations
 			int insertIndex = 0;
-			for (int i = 1 ; i < pushOperations.Count ; i++)
+			for (int i = 1; i < pushOperations.Count; i++)
 			{
 				if (TryMerge(pushOperations[insertIndex], pushOperations[i], out PushOperation op))
 				{
