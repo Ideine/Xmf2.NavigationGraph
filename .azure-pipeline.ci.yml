@@ -15,7 +15,13 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-
+  - task: NuGetToolInstaller@0
+    displayName: Use NuGet 5
+    inputs:
+      versionSpec: 5.x
+      checkLatest: true
+    condition: succeeded()
+    
   - task: NuGetCommand@2
     inputs:
       command: 'restore'

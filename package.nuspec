@@ -3,7 +3,7 @@
     <metadata>
         <id>Xmf2.NavigationGraph</id>
         <title>Xmf2.NavigationGraph</title>
-        <version>1.2.1</version>
+        <version>2.0.0</version>
         <authors>Ideine, VJubert</authors>
         <owners>Ideine, VJubert</owners>
         <projectUrl>https://github.com/Ideine/Xmf2.NavigationGraph</projectUrl>
@@ -11,26 +11,16 @@
         <repository url="https://github.com/Ideine/Xmf2.NavigationGraph.git" type="git"/>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Ideine tools for route navigation with complex graph</description>
-        <releaseNotes>add invisible parameter</releaseNotes>
+        <releaseNotes>Migrate to monodroid12, drop support of android support</releaseNotes>
         <copyright>Copyright Ideine 2020</copyright>
         <tags>xmf2 ideine navigationgraph</tags>
         <dependencies>
             <group targetFramework="netstandard2.0">
                 <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
             </group>
-            <group targetFramework="monoandroid81">
+            <group targetFramework="monoandroid12.0">
                 <dependency id="Plugin.CurrentActivity" version="2.1.0.4"/>
-                <dependency id="Xamarin.Android.Support.v7.AppCompat" version="27.0.2.1"/>
-                <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
-            </group>
-            <group targetFramework="monoandroid90">
-                <dependency id="Plugin.CurrentActivity" version="2.1.0.4"/>
-                <dependency id="Xamarin.Android.Support.v7.AppCompat" version="27.0.2.1"/>
-                <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
-            </group>
-            <group targetFramework="monoandroid10.0">
-                <dependency id="Plugin.CurrentActivity" version="2.1.0.4"/>
-                <dependency id="Xamarin.AndroidX.AppCompat" version="1.1.0"/>
+                <dependency id="Xamarin.AndroidX.AppCompat" version="1.5.1.1"/>
                 <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
             </group>
             <group targetFramework="xamarinios10">
@@ -40,9 +30,7 @@
     </metadata>
     <files>
         <file src="src\Xmf2.NavigationGraph.Core\bin\Release\netstandard2.0\*.dll;src\Xmf2.NavigationGraph.Core\bin\Release\netstandard2.0\*.pdb" target="lib\netstandard2.0"/>
-        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid81\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid81\*.pdb" target="lib\monoandroid81"/>
-        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid90\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid90\*.pdb" target="lib\monoandroid90"/>
-        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid10.0\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid10.0\*.pdb" target="lib\monoandroid10.0"/>
+        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid12.0\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid12.0\*.pdb" target="lib\monoandroid12.0"/>
         <file src="src\Xmf2.NavigationGraph.iOS\bin\Release\*.dll;src\Xmf2.NavigationGraph.iOS\bin\Release\*.pdb" target="lib\xamarinios10"/>
     </files>
 </package>

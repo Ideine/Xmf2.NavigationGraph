@@ -2,15 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-#if __ANDROID_29__
 using AndroidX.AppCompat.App;
 using AndroidX.Fragment.App;
-#else
-using Android.App;
-using Android.Support.V7.App;
-using DialogFragment = Android.Support.V4.App.DialogFragment;
-using Fragment = Android.Support.V4.App.Fragment;
-#endif
 using Plugin.CurrentActivity;
 using Xmf2.DisposableExtensions;
 using Xmf2.NavigationGraph.Core;

@@ -2,9 +2,7 @@
 <Project Sdk="MSBuild.Sdk.Extras/2.0.54">
     <PropertyGroup>
         <TargetFrameworks>
-            MonoAndroid81;
-            MonoAndroid90;
-            MonoAndroid10.0;
+            MonoAndroid12.0
         </TargetFrameworks>
         <OutputType>Library</OutputType>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -54,9 +52,7 @@
     <ItemGroup>
         <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
         <PackageReference Include="Xmf2.DisposableExtensions" Version="1.0.0" />
-        <!-- be careful with monoandroid11 -->
-        <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.1.0" Condition="'$(TargetFramework)' == 'MonoAndroid10.0'" />
-        <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="27.0.2.1" Condition="'$(TargetFramework)' != 'MonoAndroid10.0'" />
+        <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.5.1.1" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Xmf2.NavigationGraph.Core\Xmf2.NavigationGraph.Core.csproj" />
