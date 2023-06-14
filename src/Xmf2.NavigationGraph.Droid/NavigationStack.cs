@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AndroidX.AppCompat.App;
 using AndroidX.Fragment.App;
-using Plugin.CurrentActivity;
 using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid.Factories;
 using Xmf2.NavigationGraph.Droid.InnerStacks;
@@ -50,7 +49,7 @@ namespace Xmf2.NavigationGraph.Droid
 				pushes.RemoveAt(0);
 			}
 
-			var activity = CrossCurrentActivity.Current.Activity;
+			var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
 			foreach (PopOperation pop in pops)
 			{
 				pop.Execute(activity);

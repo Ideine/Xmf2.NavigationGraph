@@ -1,20 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>
-            MonoAndroid12.0
-        </TargetFrameworks>
+        <TargetFramework>net7.0-android</TargetFramework>
+        <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+        <UseMauiEssentials>true</UseMauiEssentials>
         <OutputType>Library</OutputType>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <LangVersion>latest</LangVersion>
+        <Configurations>Release;Debug</Configurations>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
       <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="Mono.Android" />
-        <Reference Include="System" />
-    </ItemGroup>  
     <ItemGroup>
         <Compile Include="Bases\BaseDialogFragment.cs" />
         <Compile Include="Bases\BaseFragment.cs" />
@@ -50,9 +46,8 @@
         <Compile Include="PushInformation.cs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
         <PackageReference Include="Xmf2.DisposableExtensions" Version="1.0.0" />
-        <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.5.1.1" />
+        <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.6.1.2" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Xmf2.NavigationGraph.Core\Xmf2.NavigationGraph.Core.csproj" />

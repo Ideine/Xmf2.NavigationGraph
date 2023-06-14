@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AndroidX.AppCompat.App;
 using AndroidX.Fragment.App;
-using Plugin.CurrentActivity;
 using Xmf2.DisposableExtensions;
 using Xmf2.NavigationGraph.Core;
 using Xmf2.NavigationGraph.Core.Interfaces;
@@ -137,12 +136,12 @@ namespace Xmf2.NavigationGraph.Droid
 
 			navigationInProgress.Commit();
 
-			CrossCurrentActivity.Current.Activity.RunOnUiThread(() => _navigationStack.ApplyActions(navigationOperation.Pops.Count, controllersToPush));
+			Microsoft.Maui.ApplicationModel.Platform.CurrentActivity.RunOnUiThread(() => _navigationStack.ApplyActions(navigationOperation.Pops.Count, controllersToPush));
 		}
 
 		public void CloseApp()
 		{
-			CrossCurrentActivity.Current.Activity.Finish();
+			Microsoft.Maui.ApplicationModel.Platform.CurrentActivity.Finish();
 		}
 	}
 }
