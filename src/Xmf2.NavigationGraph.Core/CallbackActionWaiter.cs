@@ -5,8 +5,8 @@ namespace Xmf2.NavigationGraph.Core
 {
 	public class CallbackActionWaiter
 	{
-		private List<Action> _callbackActions = new List<Action>();
-		private int _waiterCount = 0;
+		private List<Action> _callbackActions = new();
+		private int _waiterCount;
 
 		public void Add(Action callback)
 		{

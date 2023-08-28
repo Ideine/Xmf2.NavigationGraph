@@ -1,7 +1,6 @@
 using System;
-using Xmf2.NavigationGraph.Core.Interfaces;
-using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
+using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core
 {
@@ -20,10 +19,7 @@ namespace Xmf2.NavigationGraph.Core
 
 
 		public ScreenDefinition(string relativeRoute, SyncViewModelCreator<TViewModel> defaultViewModelCreator)
-			: this(relativeRoute, route => Task.FromResult(defaultViewModelCreator(route)))
-		{
-
-		}
+			: this(relativeRoute, route => Task.FromResult(defaultViewModelCreator(route))) { }
 
 		public ScreenDefinition(string relativeRoute, ViewModelCreator<TViewModel> defaultViewModelCreator)
 		{

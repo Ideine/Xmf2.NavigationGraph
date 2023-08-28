@@ -1,4 +1,4 @@
-using System;
+using System.Diagnostics;
 using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core.NavigationActions
@@ -7,7 +7,7 @@ namespace Xmf2.NavigationGraph.Core.NavigationActions
 	{
 		internal PopAction(ScreenInstance<TViewModel> screen) : base(screen)
 		{
-			System.Diagnostics.Debug.WriteLine($"\t\tPop: {screen.Definition.RelativeRoute} (parameter: {screen.Parameter})");
+			Debug.WriteLine($"\t\tPop: {screen.Definition.RelativeRoute} (parameter: {screen.Parameter})");
 		}
 	}
 }
