@@ -18,7 +18,7 @@ namespace Xmf2.NavigationGraph.iOS.Operations
 
 		public override void Execute(CallbackActionWaiter callbackActionWaiter, bool animated)
 		{
-			UINavigationController navigationController = (UINavigationController) HostStack.Host;
+			UINavigationController navigationController = (UINavigationController)HostStack.Host;
 			List<UIViewController> vcs = navigationController.ViewControllers.ToList();
 			if (CountToPop == 1)
 			{
@@ -32,7 +32,7 @@ namespace Xmf2.NavigationGraph.iOS.Operations
 				navigationController.PopToViewController(vcs[popToIndex], animated);
 				callbackActionWaiter.Add(() =>
 				{
-					for (int i = popToIndex + 1; i < vcs.Count; ++i)
+					for (int i = popToIndex + 1 ; i < vcs.Count ; ++i)
 					{
 						vcs[i].SafeDispose();
 					}
