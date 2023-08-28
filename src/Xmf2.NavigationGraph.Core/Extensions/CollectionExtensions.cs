@@ -7,9 +7,9 @@ namespace Xmf2.NavigationGraph.Core.Extensions
 		// todo à mettre dans une lib d'extensions netstandard ?
 		public static List<T> Sublist<T>(this IList<T> source, int start, int count)
 		{
-			var result = new List<T>(count);
-			var end = start + count;
-			for (var i = start; i < end; ++i)
+			List<T> result = new(count);
+			int end = start + count;
+			for (int i = start ; i < end ; ++i)
 			{
 				result.Add(source[i]);
 			}

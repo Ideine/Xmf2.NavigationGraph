@@ -12,7 +12,7 @@ namespace Xmf2.NavigationGraph.iOS
 {
 	public class NavigationStack<TViewModel> where TViewModel : IViewModel
 	{
-		private readonly List<InnerStack> _innerStacks = new List<InnerStack>();
+		private readonly List<InnerStack> _innerStacks = new();
 
 		public void EnsureInitialized(UINavigationController viewController)
 		{

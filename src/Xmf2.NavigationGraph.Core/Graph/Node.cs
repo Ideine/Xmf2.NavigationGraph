@@ -9,7 +9,7 @@ namespace Xmf2.NavigationGraph.Core.Graph
 
 		public ScreenDefinition<TViewModel> Screen { get; }
 
-		public List<Node<TViewModel>> NextNodes { get; } = new List<Node<TViewModel>>();
+		public List<Node<TViewModel>> NextNodes { get; } = new();
 
 		public Node(ScreenDefinition<TViewModel> screen, bool isEntryPoint)
 		{

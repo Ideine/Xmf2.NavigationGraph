@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using UIKit;
 using Xmf2.DisposableExtensions;
 using Xmf2.NavigationGraph.Core;
-using Xmf2.NavigationGraph.Core.Extensions;
 using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Core.NavigationActions;
 using Xmf2.NavigationGraph.iOS.Factories;
@@ -15,9 +14,9 @@ namespace Xmf2.NavigationGraph.iOS
 {
 	public class NavigationPresenter<TViewModel> : IPresenterService<TViewModel>, IRegistrationPresenterService<TViewModel> where TViewModel : IViewModel
 	{
-		private readonly Dictionary<ScreenDefinition<TViewModel>, ControllerInformation<TViewModel>> _factoryAssociation = new Dictionary<ScreenDefinition<TViewModel>, ControllerInformation<TViewModel>>();
+		private readonly Dictionary<ScreenDefinition<TViewModel>, ControllerInformation<TViewModel>> _factoryAssociation = new();
 		private readonly UINavigationController _navigationController;
-		private readonly NavigationStack<TViewModel> _navigationStack = new NavigationStack<TViewModel>();
+		private readonly NavigationStack<TViewModel> _navigationStack = new();
 
 		public NavigationPresenter(UINavigationController navigationController)
 		{

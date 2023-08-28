@@ -6,8 +6,8 @@ namespace Xmf2.NavigationGraph.Core
 {
 	public class NavigationOperation<TViewModel> where TViewModel : IViewModel
 	{
-		private readonly List<PopAction<TViewModel>> _pops = new List<PopAction<TViewModel>>(4);
-		private readonly List<PushAction<TViewModel>> _pushes = new List<PushAction<TViewModel>>(4);
+		private readonly List<PopAction<TViewModel>> _pops = new(4);
+		private readonly List<PushAction<TViewModel>> _pushes = new(4);
 
 		public IReadOnlyList<PopAction<TViewModel>> Pops => _pops;
 		public IReadOnlyList<PushAction<TViewModel>> Pushes => _pushes;

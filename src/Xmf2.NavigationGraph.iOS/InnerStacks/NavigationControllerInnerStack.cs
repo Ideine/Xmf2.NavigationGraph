@@ -13,7 +13,7 @@ namespace Xmf2.NavigationGraph.iOS.InnerStacks
 			Container = container;
 		}
 
-		public List<InnerStack> Stack { get; } = new List<InnerStack>();
+		public List<InnerStack> Stack { get; } = new();
 
 		public InnerStack Container { get; }
 

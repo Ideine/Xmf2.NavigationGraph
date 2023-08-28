@@ -15,7 +15,7 @@ namespace Xmf2.NavigationGraph.Core
 
 		private ViewModelLocatorService() { }
 
-		private readonly Dictionary<string, TViewModel> _locator = new Dictionary<string, TViewModel>();
+		private readonly Dictionary<string, TViewModel> _locator = new();
 
 		public void AddViewModel(string route, TViewModel viewModel)
 		{

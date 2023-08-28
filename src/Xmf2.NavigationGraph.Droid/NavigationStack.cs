@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using AndroidX.AppCompat.App;
 using AndroidX.Fragment.App;
-using Plugin.CurrentActivity;
 using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid.Factories;
 using Xmf2.NavigationGraph.Droid.InnerStacks;
 using Xmf2.NavigationGraph.Droid.Interfaces;
 using Xmf2.NavigationGraph.Droid.Operations;
+#if NET7_0_OR_GREATER
+using Microsoft.Maui.ApplicationModel;
+
+#else
+using Plugin.CurrentActivity;
+#endif
 
 namespace Xmf2.NavigationGraph.Droid
 {
@@ -26,7 +31,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 		private T FindFirstOfType<T>() where T : InnerStack<TViewModel>
 		{
-			for (int index = _innerStacks.Count - 1; index >= 0; index--)
+			for (int index = _innerStacks.Count - 1 ; index >= 0 ; index--)
 			{
 				InnerStack<TViewModel> stack = _innerStacks[index];
 				if (stack is T result)
@@ -50,7 +55,12 @@ namespace Xmf2.NavigationGraph.Droid
 				pushes.RemoveAt(0);
 			}
 
+#if NET7_0_OR_GREATER
+			var activity = Platform.CurrentActivity;
+#else
 			var activity = CrossCurrentActivity.Current.Activity;
+#endif
+
 			foreach (PopOperation pop in pops)
 			{
 				pop.Execute(activity);
@@ -76,7 +86,7 @@ namespace Xmf2.NavigationGraph.Droid
 			List<PopOperation> popOperations = new();
 
 			int lastInnerStackPopIndex = _innerStacks.Count;
-			for (int i = _innerStacks.Count - 1; i >= 0; i--)
+			for (int i = _innerStacks.Count - 1 ; i >= 0 ; i--)
 			{
 				var item = _innerStacks[i];
 				if (item.Count <= popCount)
@@ -108,7 +118,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			//simplify list of pop operations
 			int insertIndex = 0;
-			for (int i = 1; i < popOperations.Count; i++)
+			for (int i = 1 ; i < popOperations.Count ; i++)
 			{
 				if (TryMerge(popOperations[insertIndex], popOperations[i], out PopOperation op))
 				{
@@ -222,7 +232,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			//simplify list of pop operations
 			int insertIndex = 0;
-			for (int i = 1; i < pushOperations.Count; i++)
+			for (int i = 1 ; i < pushOperations.Count ; i++)
 			{
 				if (TryMerge(pushOperations[insertIndex], pushOperations[i], out PushOperation op))
 				{
