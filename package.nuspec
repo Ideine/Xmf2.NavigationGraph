@@ -3,7 +3,7 @@
     <metadata>
         <id>Xmf2.NavigationGraph</id>
         <title>Xmf2.NavigationGraph</title>
-        <version>2.0.0</version>
+        <version>7.0.0-pre</version>
         <authors>Ideine, VJubert</authors>
         <owners>Ideine, VJubert</owners>
         <projectUrl>https://github.com/Ideine/Xmf2.NavigationGraph</projectUrl>
@@ -20,10 +20,16 @@
             </group>
             <group targetFramework="monoandroid12.0">
                 <dependency id="Plugin.CurrentActivity" version="2.1.0.4"/>
-                <dependency id="Xamarin.AndroidX.AppCompat" version="1.5.1.1"/>
+                <dependency id="Xamarin.AndroidX.AppCompat" version="1.6.1.3"/>
+                <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
+            </group>
+            <group targetFramework="net7.0-android31.0">
                 <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
             </group>
             <group targetFramework="xamarinios10">
+                <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
+            </group>
+            <group targetFramework="net7.0-ios16.0">
                 <dependency id="Xmf2.DisposableExtensions" version="1.0.0"/>
             </group>
         </dependencies>
@@ -31,6 +37,8 @@
     <files>
         <file src="src\Xmf2.NavigationGraph.Core\bin\Release\netstandard2.0\*.dll;src\Xmf2.NavigationGraph.Core\bin\Release\netstandard2.0\*.pdb" target="lib\netstandard2.0"/>
         <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid12.0\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\monoandroid12.0\*.pdb" target="lib\monoandroid12.0"/>
-        <file src="src\Xmf2.NavigationGraph.iOS\bin\Release\*.dll;src\Xmf2.NavigationGraph.iOS\bin\Release\*.pdb" target="lib\xamarinios10"/>
+        <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\net7.0-android\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\net7.0-android\*.pdb" target="lib\net7.0-android31.0"/>
+        <file src="src\Xmf2.NavigationGraph.iOS\bin\Release\xamarin.ios10\*.dll;src\Xmf2.NavigationGraph.iOS\bin\Release\xamarin.ios10\*.pdb" target="lib\xamarinios10"/>
+        <file src="src\Xmf2.NavigationGraph.iOS\bin\Release\net7.0-ios\*.dll;src\Xmf2.NavigationGraph.iOS\bin\Release\net7.0-ios\*.pdb" target="lib\net7.0-ios16.0"/>
     </files>
 </package>

@@ -1,7 +1,6 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
 	<PropertyGroup>
-		<!--        <TargetFrameworks>Xamarin.iOS10;net7.0-ios</TargetFrameworks>-->
-		<TargetFramework>net7.0-ios</TargetFramework>
+		<TargetFrameworks>Xamarin.iOS10;net7.0-ios</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<Nullable>disable</Nullable>
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>

@@ -1,55 +1,36 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net7.0-android</TargetFramework>
-        <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
-        <UseMauiEssentials>true</UseMauiEssentials>
-        <OutputType>Library</OutputType>
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-        <LangVersion>latest</LangVersion>
-        <Configurations>Release;Debug</Configurations>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-      <DebugSymbols>true</DebugSymbols>
-    </PropertyGroup>
-    <ItemGroup>
-        <Compile Include="Bases\BaseDialogFragment.cs" />
-        <Compile Include="Bases\BaseFragment.cs" />
-        <Compile Include="Bases\BaseFragmentActivity.cs" />
-        <Compile Include="Factories\ActivityViewFactory.cs" />
-        <Compile Include="Factories\DialogFragmentViewFactory.cs" />
-        <Compile Include="Factories\FragmentViewFactory.cs" />
-        <Compile Include="Factories\ViewFactory.cs" />
-        <Compile Include="InnerStacks\ActivityInnerStack.cs" />
-        <Compile Include="InnerStacks\DialogFragmentInnerStack.cs" />
-        <Compile Include="InnerStacks\FragmentInnerStack.cs" />
-        <Compile Include="InnerStacks\InnerStack.cs" />
-        <Compile Include="InnerStacks\InnerStackExtensions.cs" />
-        <Compile Include="Interfaces\IDeferredNavigationAction.cs" />
-        <Compile Include="Interfaces\IFragmentActivity.cs" />
-        <Compile Include="Interfaces\IFragmentInnerStack.cs" />
-        <Compile Include="Interfaces\IRegistrationPresenterService.cs" />
-        <Compile Include="Interfaces\IScreenView.cs" />
-        <Compile Include="NavigationConstants.cs" />
-        <Compile Include="NavigationParameterContainer.cs" />
-        <Compile Include="NavigationPresenter.cs" />
-        <Compile Include="NavigationStack.cs" />
-        <Compile Include="Operations\ActivityPopOperation.cs" />
-        <Compile Include="Operations\ActivityPushOperation.cs" />
-        <Compile Include="Operations\FragmentPopOperation.cs" />
-        <Compile Include="Operations\FragmentPushOperation.cs" />
-        <Compile Include="Operations\MergedActivityPopPushOperation.cs" />
-        <Compile Include="Operations\MergedFragmentPopPushOperation.cs" />
-        <Compile Include="Operations\MergedPopPushOperation.cs" />
-        <Compile Include="Operations\Operation.cs" />
-        <Compile Include="Operations\PopOperation.cs" />
-        <Compile Include="Operations\PushOperation.cs" />
-        <Compile Include="PushInformation.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Xmf2.DisposableExtensions" Version="1.0.0" />
-        <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.6.1.2" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\Xmf2.NavigationGraph.Core\Xmf2.NavigationGraph.Core.csproj" />
-    </ItemGroup>
+﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
+	<PropertyGroup>
+		<TargetFrameworks>MonoAndroid10.0;net7.0-android</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<Nullable>disable</Nullable>
+		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-android'))">21.0</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" $(TargetFramework.Contains('-android')) ">
+		<UseMauiEssentials>true</UseMauiEssentials>
+	</PropertyGroup>
+
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+		<PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
+		<PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.6.1.3" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)'=='Release' ">
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="**\*.cs" />
+		<Compile Remove="obj\**" />
+		<Compile Remove="bin\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Xmf2.NavigationGraph.Core\Xmf2.NavigationGraph.Core.csproj" />
+	</ItemGroup>
+
 </Project>

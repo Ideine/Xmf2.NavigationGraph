@@ -9,18 +9,24 @@ using Xmf2.NavigationGraph.Core;
 using Xmf2.NavigationGraph.Core.Interfaces;
 using Xmf2.NavigationGraph.Droid.Factories;
 using Xmf2.NavigationGraph.Droid.Interfaces;
+#if NET7_0_OR_GREATER
+using Microsoft.Maui.ApplicationModel;
+
+#else
+using Plugin.CurrentActivity;
+#endif
 
 namespace Xmf2.NavigationGraph.Droid
 {
 	/*
 	 * Dans le cas où l'on voudrait show plusieurs activity :
 	 * Intent intent = new Intent (this, MainActivity.class);
-     *  TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-     *  stackBuilder.addParentStack(MainActivity.class);
-     *  stackBuilder.addNextIntent(intent);
-     *  Intent intentEmailView = new Intent (this, EmailViewActivity.class);
-     *  intentEmailView.putExtra("EmailId","you can Pass emailId here");
-     *  stackBuilder.addNextIntent(intentEmailView);
+	 *  TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+	 *  stackBuilder.addParentStack(MainActivity.class);
+	 *  stackBuilder.addNextIntent(intent);
+	 *  Intent intentEmailView = new Intent (this, EmailViewActivity.class);
+	 *  intentEmailView.putExtra("EmailId","you can Pass emailId here");
+	 *  stackBuilder.addNextIntent(intentEmailView);
 	 */
 
 	public class NavigationPresenter<TViewModel> : IPresenterService<TViewModel>, IRegistrationPresenterService<TViewModel> where TViewModel : IViewModel
@@ -121,6 +127,7 @@ namespace Xmf2.NavigationGraph.Droid
 
 			if (navigationInProgress.IsCancelled)
 			{
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 				Task.Run(async () =>
 				{
 					// we wait 10s just in case, shouldn't put too much memory pressure on GC
@@ -131,17 +138,28 @@ namespace Xmf2.NavigationGraph.Droid
 						push.Instance.ViewModelInstance?.SafeDispose();
 					}
 				}).ConfigureAwait(false);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 				return;
 			}
 
 			navigationInProgress.Commit();
 
-			Microsoft.Maui.ApplicationModel.Platform.CurrentActivity.RunOnUiThread(() => _navigationStack.ApplyActions(navigationOperation.Pops.Count, controllersToPush));
+#if NET7_0_OR_GREATER
+			var activity = Platform.CurrentActivity!;
+#else
+			var activity = CrossCurrentActivity.Current.Activity!;
+#endif
+
+			activity.RunOnUiThread(() => _navigationStack.ApplyActions(navigationOperation.Pops.Count, controllersToPush));
 		}
 
 		public void CloseApp()
 		{
-			Microsoft.Maui.ApplicationModel.Platform.CurrentActivity.Finish();
+#if NET7_0_OR_GREATER
+			Platform.CurrentActivity!.Finish();
+#else
+			CrossCurrentActivity.Current.Activity!.Finish();
+#endif
 		}
 	}
 }
