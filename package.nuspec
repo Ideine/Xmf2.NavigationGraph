@@ -3,15 +3,15 @@
     <metadata>
         <id>Xmf2.NavigationGraph</id>
         <title>Xmf2.NavigationGraph</title>
-        <version>7.0.0</version>
+        <version>7.0.1</version>
         <authors>Ideine, VJubert</authors>
         <owners>Ideine, VJubert</owners>
         <projectUrl>https://github.com/Ideine/Xmf2.NavigationGraph</projectUrl>
-        <licenseUrl>https://github.com/Ideine/Xmf2.NavigationGraph/blob/master/LICENSE</licenseUrl>
+        <license type="file">LICENSE</license>
         <repository url="https://github.com/Ideine/Xmf2.NavigationGraph.git" type="git"/>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Ideine tools for route navigation with complex graph</description>
-        <releaseNotes>Add support of net7</releaseNotes>
+        <releaseNotes>Fix license url</releaseNotes>
         <copyright>Copyright Ideine 2020</copyright>
         <tags>xmf2 ideine navigationgraph</tags>
         <dependencies>
@@ -40,5 +40,6 @@
         <file src="src\Xmf2.NavigationGraph.Droid\bin\Release\net7.0-android\*.dll;src\Xmf2.NavigationGraph.Droid\bin\Release\net7.0-android\*.pdb" target="lib\net7.0-android31.0"/>
         <file src="src\Xmf2.NavigationGraph.iOS\bin\Release\xamarin.ios10\*.dll;src\Xmf2.NavigationGraph.iOS\bin\Release\xamarin.ios10\*.pdb" target="lib\xamarinios10"/>
         <file src="src\Xmf2.NavigationGraph.iOS\bin\Release\net7.0-ios\*.dll;src\Xmf2.NavigationGraph.iOS\bin\Release\net7.0-ios\*.pdb" target="lib\net7.0-ios16.0"/>
+        <file src="LICENSE"/>
     </files>
 </package>
