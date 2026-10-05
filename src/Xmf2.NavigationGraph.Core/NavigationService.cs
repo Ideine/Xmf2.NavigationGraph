@@ -28,6 +28,7 @@ namespace Xmf2.NavigationGraph.Core
 
 		private readonly object _mutex = new();
 		private NavigationInProgress<TViewModel> _navigationInProgress;
+		private Task _runningNavigation;
 
 		public NavigationService(IPresenterService<TViewModel> presenterService)
 		{
@@ -46,42 +47,39 @@ namespace Xmf2.NavigationGraph.Core
 
 		public async Task Show(string route)
 		{
-			List<ScreenInstance<TViewModel>> result = _navigationGraph.FindWithRoute(route).ToList();
-
 			Debug.WriteLine($"Navigating to route {route}");
-			Debug.WriteLine($"\tUse stack: {string.Join(", ", result.Select(x => x.ToString()))}");
 
-			await UpdateNavigationStack(result);
+			await UpdateNavigationStack(_ => _navigationGraph.FindWithRoute(route).ToList());
 		}
 
 		public async Task Show(ScreenDefinition<TViewModel> screen, string parameter = null, ViewModelCreator<TViewModel> viewModelCreator = null)
 		{
 			ScreenInstance<TViewModel> screenInstance = new(screen, parameter, viewModelCreator);
-			List<ScreenInstance<TViewModel>> result = _navigationGraph.FindBestStack(_navigationStack, screenInstance).ToList();
 
 			Debug.WriteLine($"Navigating to {screen.RelativeRoute}");
-			Debug.WriteLine($"\tUse stack: {string.Join(", ", result.Select(x => x.ToString()))}");
 
-			await UpdateNavigationStack(result);
+			await UpdateNavigationStack(currentStack => _navigationGraph.FindBestStack(currentStack, screenInstance).ToList());
 		}
 
 		public async Task Close()
 		{
-			if (_navigationStack.Count == 1)
-			{
-				_presenterService.CloseApp();
-			}
-
-			List<ScreenInstance<TViewModel>> newStack = new(_navigationStack.Count - 1);
-			for (int i = 0 ; i < _navigationStack.Count - 1 ; i++)
-			{
-				newStack.Add(_navigationStack[i]);
-			}
-
 			Debug.WriteLine($"Navigation: Close");
-			Debug.WriteLine($"\tUse stack: {string.Join(", ", newStack.Select(x => x.ToString()))}");
 
-			await UpdateNavigationStack(newStack);
+			await UpdateNavigationStack(currentStack =>
+			{
+				if (currentStack.Count == 1)
+				{
+					_presenterService.CloseApp();
+				}
+
+				List<ScreenInstance<TViewModel>> newStack = new(currentStack.Count - 1);
+				for (int i = 0 ; i < currentStack.Count - 1 ; i++)
+				{
+					newStack.Add(currentStack[i]);
+				}
+
+				return newStack;
+			});
 		}
 
 		public Task Push(string route, ViewModelCreator<TViewModel> viewModelCreator)
@@ -94,52 +92,103 @@ namespace Xmf2.NavigationGraph.Core
 			throw new NotImplementedException();
 		}
 
-		private async Task UpdateNavigationStack(List<ScreenInstance<TViewModel>> newNavigationStack)
+		private Task UpdateNavigationStack(Func<List<ScreenInstance<TViewModel>>, List<ScreenInstance<TViewModel>>> buildNewNavigationStack)
 		{
+			NavigationOperation<TViewModel> navigationOperation = new();
+			NavigationInProgress<TViewModel> navigationInProgress;
+			TaskCompletionSource<bool> navigationCompletion;
+
 			lock (_mutex)
 			{
+				List<ScreenInstance<TViewModel>> newNavigationStack = buildNewNavigationStack(_navigationStack);
+				Debug.WriteLine($"\tUse stack: {string.Join(", ", newNavigationStack.Select(x => x.ToString()))}");
+
+				if (_runningNavigation is { IsCompleted: false } && IsSameStack(newNavigationStack, _navigationStack))
+				{
+					//same navigation requested twice (double tap): restarting it would cancel the running one for nothing
+					return _runningNavigation;
+				}
+
 				if (_navigationInProgress != null && !_navigationInProgress.IsFinished)
 				{
 					_navigationInProgress.Cancel();
+
+					//the presenter disposes the view models of a cancelled navigation, its screens must not be reused
+					newNavigationStack = newNavigationStack.ConvertAll(x => IsPushedBy(_navigationInProgress, x) ? new ScreenInstance<TViewModel>(x.Definition, x.Parameter, x.ViewModelCreator) : x);
 
 					_navigationStack.Clear();
 					_navigationStack.AddRange(_navigationInProgress.StackBeforeNavigation);
 				}
 
-				_navigationInProgress = null;
+				navigationInProgress = _navigationInProgress = new(_navigationStack.ToArray());
+
+				int commonIndexLimit = 0;
+				for (;
+				     commonIndexLimit < newNavigationStack.Count &&
+				     commonIndexLimit < _navigationStack.Count &&
+				     newNavigationStack[commonIndexLimit] == _navigationStack[commonIndexLimit] ;
+				     ++commonIndexLimit) { }
+
+				//generate pop instructions
+				for (int i = _navigationStack.Count - 1 ; i >= commonIndexLimit ; i--)
+				{
+					navigationOperation.Add(new PopAction<TViewModel>(_navigationStack[i]));
+				}
+
+				_navigationStack.RemoveRange(commonIndexLimit, _navigationStack.Count - commonIndexLimit);
+
+				//generate push instructions
+				if (_navigationStack.Capacity < newNavigationStack.Count)
+				{
+					_navigationStack.Capacity = newNavigationStack.Count + 3; //Why 3 ? because we could use some margin and 3 is a nice small number !
+				}
+
+				for (int i = commonIndexLimit ; i < newNavigationStack.Count ; ++i)
+				{
+					navigationOperation.Add(new PushAction<TViewModel>(newNavigationStack[i]));
+					_navigationStack.Add(newNavigationStack[i]);
+				}
+
+				navigationCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+				_runningNavigation = navigationCompletion.Task;
 			}
 
-			_navigationInProgress = new(_navigationStack.ToArray());
+			return ApplyNavigation(navigationOperation, navigationInProgress, navigationCompletion);
+		}
 
-			NavigationOperation<TViewModel> navigationOperation = new();
-			int commonIndexLimit = 0;
-			for (;
-			     commonIndexLimit < newNavigationStack.Count &&
-			     commonIndexLimit < _navigationStack.Count &&
-			     newNavigationStack[commonIndexLimit] == _navigationStack[commonIndexLimit] ;
-			     ++commonIndexLimit) { }
-
-			//generate pop instructions
-			for (int i = _navigationStack.Count - 1 ; i >= commonIndexLimit ; i--)
+		private async Task ApplyNavigation(NavigationOperation<TViewModel> navigationOperation, NavigationInProgress<TViewModel> navigationInProgress, TaskCompletionSource<bool> navigationCompletion)
+		{
+			try
 			{
-				navigationOperation.Add(new PopAction<TViewModel>(_navigationStack[i]));
+				await _presenterService.UpdateNavigation(navigationOperation, navigationInProgress);
 			}
-
-			_navigationStack.RemoveRange(commonIndexLimit, _navigationStack.Count - commonIndexLimit);
-
-			//generate push instructions
-			if (_navigationStack.Capacity < newNavigationStack.Count)
+			finally
 			{
-				_navigationStack.Capacity = newNavigationStack.Count + 3; //Why 3 ? because we could use some margin and 3 is a nice small number !
+				navigationCompletion.TrySetResult(true);
 			}
+		}
 
-			for (int i = commonIndexLimit ; i < newNavigationStack.Count ; ++i)
+		private bool IsPushedBy(NavigationInProgress<TViewModel> navigationInProgress, ScreenInstance<TViewModel> screen)
+		{
+			return _navigationStack.Any(x => ReferenceEquals(x, screen)) && !navigationInProgress.StackBeforeNavigation.Any(x => ReferenceEquals(x, screen));
+		}
+
+		private static bool IsSameStack(List<ScreenInstance<TViewModel>> left, List<ScreenInstance<TViewModel>> right)
+		{
+			if (left.Count != right.Count)
 			{
-				navigationOperation.Add(new PushAction<TViewModel>(newNavigationStack[i]));
-				_navigationStack.Add(newNavigationStack[i]);
+				return false;
 			}
 
-			await _presenterService.UpdateNavigation(navigationOperation, _navigationInProgress);
+			for (int i = 0 ; i < left.Count ; i++)
+			{
+				if (left[i] != right[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 	}
 }
