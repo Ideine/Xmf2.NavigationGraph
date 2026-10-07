@@ -17,6 +17,7 @@ namespace Xmf2.NavigationGraph.Core
 		Task Show(ScreenDefinition<TViewModel> screen, string parameter = null, ViewModelCreator<TViewModel> viewModelCreator = null);
 
 		Task Close();
+		Task Close(TViewModel viewModel);
 		Task Push(string route, ViewModelCreator<TViewModel> viewModelCreator = null);
 	}
 
@@ -63,23 +64,37 @@ namespace Xmf2.NavigationGraph.Core
 
 		public async Task Close()
 		{
-			Debug.WriteLine($"Navigation: Close");
+			Debug.WriteLine("Navigation: Close");
 
-			await UpdateNavigationStack(currentStack =>
+			await UpdateNavigationStack(currentStack => CloseFrom(currentStack, currentStack.Count - 1));
+		}
+
+		public async Task Close(TViewModel viewModel)
+		{
+			if (viewModel == null)
 			{
-				if (currentStack.Count == 1)
-				{
-					_presenterService.CloseApp();
-				}
+				throw new ArgumentNullException(nameof(viewModel));
+			}
 
-				List<ScreenInstance<TViewModel>> newStack = new(currentStack.Count - 1);
-				for (int i = 0 ; i < currentStack.Count - 1 ; i++)
-				{
-					newStack.Add(currentStack[i]);
-				}
+			Debug.WriteLine($"Navigation: Close {viewModel}");
 
-				return newStack;
-			});
+			//a screen already closed (second tap on its back button) is no longer in the stack: nothing to close
+			await UpdateNavigationStack(currentStack => CloseFrom(currentStack, currentStack.FindLastIndex(x => ReferenceEquals(x.ViewModelInstance, viewModel))));
+		}
+
+		private List<ScreenInstance<TViewModel>> CloseFrom(List<ScreenInstance<TViewModel>> currentStack, int index)
+		{
+			if (index < 0)
+			{
+				return null;
+			}
+
+			if (index == 0)
+			{
+				_presenterService.CloseApp();
+			}
+
+			return currentStack.GetRange(0, index);
 		}
 
 		public Task Push(string route, ViewModelCreator<TViewModel> viewModelCreator)
@@ -100,6 +115,12 @@ namespace Xmf2.NavigationGraph.Core
 			lock (_mutex)
 			{
 				List<ScreenInstance<TViewModel>> newNavigationStack = buildNewNavigationStack(_navigationStack);
+				if (newNavigationStack == null)
+				{
+					Debug.WriteLine("\tNothing to close");
+					return Task.CompletedTask;
+				}
+
 				Debug.WriteLine($"\tUse stack: {string.Join(", ", newNavigationStack.Select(x => x.ToString()))}");
 
 				//the presenter runs outside of the lock: while it creates the view models, _navigationStack already holds the stack it will display.
