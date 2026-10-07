@@ -125,7 +125,7 @@ namespace Xmf2.NavigationGraph.Droid
 				await push.Instance.GetViewModel(""); //TODO: add route here
 			}
 
-			if (navigationInProgress.IsCancelled)
+			if (!navigationInProgress.TryCommit())
 			{
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 				Task.Run(async () =>
@@ -141,8 +141,6 @@ namespace Xmf2.NavigationGraph.Droid
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 				return;
 			}
-
-			navigationInProgress.Commit();
 
 #if NET7_0_OR_GREATER
 			var activity = Platform.CurrentActivity!;
