@@ -94,33 +94,33 @@ namespace Xmf2.NavigationGraph.Core
 
 		private Task UpdateNavigationStack(Func<List<ScreenInstance<TViewModel>>, List<ScreenInstance<TViewModel>>> buildNewNavigationStack)
 		{
-			NavigationOperation<TViewModel> navigationOperation = new();
-			NavigationInProgress<TViewModel> navigationInProgress;
-			TaskCompletionSource<bool> navigationCompletion;
+			TaskCompletionSource<bool> start = new();
+			Task navigation;
 
 			lock (_mutex)
 			{
 				List<ScreenInstance<TViewModel>> newNavigationStack = buildNewNavigationStack(_navigationStack);
 				Debug.WriteLine($"\tUse stack: {string.Join(", ", newNavigationStack.Select(x => x.ToString()))}");
 
-				if (_runningNavigation is { IsCompleted: false } && IsSameStack(newNavigationStack, _navigationStack))
+				//the presenter runs outside of the lock: while it creates the view models, _navigationStack already holds the stack it will display.
+				//The same request (double tap) would otherwise cancel the running navigation and create its view models a second time
+				if (_runningNavigation is { IsCompleted: false } && newNavigationStack.SequenceEqual(_navigationStack))
 				{
-					//same navigation requested twice (double tap): restarting it would cancel the running one for nothing
 					return _runningNavigation;
 				}
 
-				if (_navigationInProgress != null && !_navigationInProgress.IsFinished)
+				NavigationInProgress<TViewModel> previousNavigation = _navigationInProgress;
+				if (previousNavigation != null && previousNavigation.TryCancel())
 				{
-					_navigationInProgress.Cancel();
-
 					//the presenter disposes the view models of a cancelled navigation, its screens must not be reused
-					newNavigationStack = newNavigationStack.ConvertAll(x => IsPushedBy(_navigationInProgress, x) ? new ScreenInstance<TViewModel>(x.Definition, x.Parameter, x.ViewModelCreator) : x);
+					newNavigationStack = newNavigationStack.ConvertAll(x => previousNavigation.HasPushed(x) ? new ScreenInstance<TViewModel>(x.Definition, x.Parameter, x.ViewModelCreator) : x);
 
 					_navigationStack.Clear();
-					_navigationStack.AddRange(_navigationInProgress.StackBeforeNavigation);
+					_navigationStack.AddRange(previousNavigation.StackBeforeNavigation);
 				}
 
-				navigationInProgress = _navigationInProgress = new(_navigationStack.ToArray());
+				ScreenInstance<TViewModel>[] stackBeforeNavigation = _navigationStack.ToArray();
+				NavigationOperation<TViewModel> navigationOperation = new();
 
 				int commonIndexLimit = 0;
 				for (;
@@ -149,46 +149,18 @@ namespace Xmf2.NavigationGraph.Core
 					_navigationStack.Add(newNavigationStack[i]);
 				}
 
-				navigationCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
-				_runningNavigation = navigationCompletion.Task;
+				NavigationInProgress<TViewModel> navigationInProgress = _navigationInProgress = new(stackBeforeNavigation, navigationOperation);
+				navigation = _runningNavigation = ApplyNavigation(navigationOperation, navigationInProgress, start.Task);
 			}
 
-			return ApplyNavigation(navigationOperation, navigationInProgress, navigationCompletion);
+			start.SetResult(true);
+			return navigation;
 		}
 
-		private async Task ApplyNavigation(NavigationOperation<TViewModel> navigationOperation, NavigationInProgress<TViewModel> navigationInProgress, TaskCompletionSource<bool> navigationCompletion)
+		private async Task ApplyNavigation(NavigationOperation<TViewModel> navigationOperation, NavigationInProgress<TViewModel> navigationInProgress, Task start)
 		{
-			try
-			{
-				await _presenterService.UpdateNavigation(navigationOperation, navigationInProgress);
-			}
-			finally
-			{
-				navigationCompletion.TrySetResult(true);
-			}
-		}
-
-		private bool IsPushedBy(NavigationInProgress<TViewModel> navigationInProgress, ScreenInstance<TViewModel> screen)
-		{
-			return _navigationStack.Any(x => ReferenceEquals(x, screen)) && !navigationInProgress.StackBeforeNavigation.Any(x => ReferenceEquals(x, screen));
-		}
-
-		private static bool IsSameStack(List<ScreenInstance<TViewModel>> left, List<ScreenInstance<TViewModel>> right)
-		{
-			if (left.Count != right.Count)
-			{
-				return false;
-			}
-
-			for (int i = 0 ; i < left.Count ; i++)
-			{
-				if (left[i] != right[i])
-				{
-					return false;
-				}
-			}
-
-			return true;
+			await start;
+			await _presenterService.UpdateNavigation(navigationOperation, navigationInProgress);
 		}
 	}
 }

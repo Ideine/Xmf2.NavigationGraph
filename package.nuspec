@@ -3,7 +3,7 @@
     <metadata>
         <id>Xmf2.NavigationGraph</id>
         <title>Xmf2.NavigationGraph</title>
-        <version>7.0.1</version>
+        <version>7.1.0</version>
         <authors>Ideine, VJubert</authors>
         <owners>Ideine, VJubert</owners>
         <projectUrl>https://github.com/Ideine/Xmf2.NavigationGraph</projectUrl>
@@ -11,7 +11,7 @@
         <repository url="https://github.com/Ideine/Xmf2.NavigationGraph.git" type="git"/>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Ideine tools for route navigation with complex graph</description>
-        <releaseNotes>Fix license url</releaseNotes>
+        <releaseNotes>Fix concurrent navigations disposing the displayed view model; INavigationInProgress.TryCommit to commit atomically against a cancellation</releaseNotes>
         <copyright>Copyright Ideine 2020</copyright>
         <tags>xmf2 ideine navigationgraph</tags>
         <dependencies>

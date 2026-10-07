@@ -1,28 +1,47 @@
+using System.Linq;
+using System.Threading;
 using Xmf2.NavigationGraph.Core.Interfaces;
 
 namespace Xmf2.NavigationGraph.Core
 {
 	internal class NavigationInProgress<TViewModel> : INavigationInProgress where TViewModel : IViewModel
 	{
-		public NavigationInProgress(ScreenInstance<TViewModel>[] stackBeforeNavigation)
+		private const int RUNNING = 0;
+		private const int COMMITTED = 1;
+		private const int CANCELLED = 2;
+
+		private int _state = RUNNING;
+
+		public NavigationInProgress(ScreenInstance<TViewModel>[] stackBeforeNavigation, NavigationOperation<TViewModel> operation)
 		{
 			StackBeforeNavigation = stackBeforeNavigation;
+			Operation = operation;
 		}
 
 		public ScreenInstance<TViewModel>[] StackBeforeNavigation { get; }
 
-		public bool IsCancelled { get; private set; }
+		public NavigationOperation<TViewModel> Operation { get; }
 
-		public bool IsFinished { get; private set; }
+		public bool IsCancelled => Volatile.Read(ref _state) == CANCELLED;
 
-		public void Cancel()
+		public bool TryCancel()
 		{
-			IsCancelled = true;
+			return Interlocked.CompareExchange(ref _state, CANCELLED, RUNNING) == RUNNING;
+		}
+
+		public bool TryCommit()
+		{
+			return Interlocked.CompareExchange(ref _state, COMMITTED, RUNNING) == RUNNING;
 		}
 
 		public void Commit()
 		{
-			IsFinished = true;
+			TryCommit();
+		}
+
+		public bool HasPushed(ScreenInstance<TViewModel> screen)
+		{
+			return Operation.Pushes.Any(x => ReferenceEquals(x.Instance, screen));
 		}
 	}
 }
