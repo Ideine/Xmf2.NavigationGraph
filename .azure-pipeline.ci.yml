@@ -15,28 +15,34 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-  - task: NuGetToolInstaller@0
-    displayName: Use NuGet 5
+  - task: UseDotNet@2
+    displayName: Use .NET 10
     inputs:
-      versionSpec: 5.x
-      checkLatest: true
-    condition: succeeded()
-    
-  - task: NuGetCommand@2
+      packageType: sdk
+      version: 10.0.x
+
+  - script: dotnet workload install ios android
+    displayName: Install iOS and Android workloads
+
+  - task: DotNetCoreCLI@2
+    displayName: Restore
     inputs:
       command: 'restore'
-      restoreSolution: 'Xmf2.NavigationGraph.sln'
+      projects: 'Xmf2.NavigationGraph.sln'
       feedsToUse: 'select'
       vstsFeed: 'abac689f-cba8-49fc-aa05-4525b9107b76'
 
-  - task: VSBuild@1
+  - task: DotNetCoreCLI@2
     displayName: Build Package
     inputs:
-      solution: Xmf2.NavigationGraph.sln
-      platform: 'any cpu'
-      configuration: 'release'
-      maximumCpuCount: true
-    condition: succeeded()
+      command: 'build'
+      projects: 'Xmf2.NavigationGraph.sln'
+      arguments: '--configuration Release --no-restore'
+
+  - task: NuGetToolInstaller@1
+    displayName: Use NuGet 6
+    inputs:
+      versionSpec: 6.x
 
   - task: NuGetCommand@2
     inputs:
