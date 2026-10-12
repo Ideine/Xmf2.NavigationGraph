@@ -5,7 +5,6 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>disable</Nullable>
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-		<UseMauiEssentials>true</UseMauiEssentials>
 	</PropertyGroup>
 
 	<ItemGroup>
