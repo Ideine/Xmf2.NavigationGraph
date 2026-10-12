@@ -181,7 +181,43 @@ namespace Xmf2.NavigationGraph.Core
 		private async Task ApplyNavigation(NavigationOperation<TViewModel> navigationOperation, NavigationInProgress<TViewModel> navigationInProgress, Task start)
 		{
 			await start;
-			await _presenterService.UpdateNavigation(navigationOperation, navigationInProgress);
+			try
+			{
+				await _presenterService.UpdateNavigation(navigationOperation, navigationInProgress);
+			}
+			catch
+			{
+				Rollback(navigationInProgress);
+				throw;
+			}
+		}
+
+		//a view model creation that fails stops the presenter before it commits: the screens of this navigation are never displayed,
+		//so the stack must go back to the displayed one, otherwise the next navigations are computed on screens the user never saw
+		private void Rollback(NavigationInProgress<TViewModel> navigationInProgress)
+		{
+			lock (_mutex)
+			{
+				if (navigationInProgress.TryCancel())
+				{
+					_navigationStack.Clear();
+					_navigationStack.AddRange(navigationInProgress.StackBeforeNavigation);
+				}
+			}
+
+			//already cancelled by a newer navigation, the presenter stopped before its own cleanup of the cancelled view models
+			if (!navigationInProgress.IsCancelled)
+			{
+				return;
+			}
+
+			foreach (PushAction<TViewModel> push in navigationInProgress.Operation.Pushes)
+			{
+				if (!navigationInProgress.StackBeforeNavigation.Any(x => ReferenceEquals(x, push.Instance)))
+				{
+					push.Instance.ViewModelInstance?.Dispose();
+				}
+			}
 		}
 	}
 }
