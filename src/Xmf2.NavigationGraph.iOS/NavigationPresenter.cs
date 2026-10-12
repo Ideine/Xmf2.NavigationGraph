@@ -47,7 +47,7 @@ namespace Xmf2.NavigationGraph.iOS
 				await push.Instance.GetViewModel(""); //TODO: add route here
 			}
 
-			if (navigationInProgress.IsCancelled)
+			if (!navigationInProgress.TryCommit())
 			{
 				Task.Run(async () =>
 				{
@@ -62,7 +62,6 @@ namespace Xmf2.NavigationGraph.iOS
 				return;
 			}
 
-			navigationInProgress.Commit();
 			UIApplication.SharedApplication.InvokeOnMainThread(() =>
 			{
 				var callbackActionWaiter = new CallbackActionWaiter();

@@ -17,6 +17,7 @@ namespace Xmf2.NavigationGraph.Core
 		Task Show(ScreenDefinition<TViewModel> screen, string parameter = null, ViewModelCreator<TViewModel> viewModelCreator = null);
 
 		Task Close();
+		Task Close(TViewModel viewModel);
 		Task Push(string route, ViewModelCreator<TViewModel> viewModelCreator = null);
 	}
 
@@ -28,6 +29,7 @@ namespace Xmf2.NavigationGraph.Core
 
 		private readonly object _mutex = new();
 		private NavigationInProgress<TViewModel> _navigationInProgress;
+		private Task _runningNavigation;
 
 		public NavigationService(IPresenterService<TViewModel> presenterService)
 		{
@@ -46,42 +48,53 @@ namespace Xmf2.NavigationGraph.Core
 
 		public async Task Show(string route)
 		{
-			List<ScreenInstance<TViewModel>> result = _navigationGraph.FindWithRoute(route).ToList();
-
 			Debug.WriteLine($"Navigating to route {route}");
-			Debug.WriteLine($"\tUse stack: {string.Join(", ", result.Select(x => x.ToString()))}");
 
-			await UpdateNavigationStack(result);
+			await UpdateNavigationStack(_ => _navigationGraph.FindWithRoute(route).ToList());
 		}
 
 		public async Task Show(ScreenDefinition<TViewModel> screen, string parameter = null, ViewModelCreator<TViewModel> viewModelCreator = null)
 		{
 			ScreenInstance<TViewModel> screenInstance = new(screen, parameter, viewModelCreator);
-			List<ScreenInstance<TViewModel>> result = _navigationGraph.FindBestStack(_navigationStack, screenInstance).ToList();
 
 			Debug.WriteLine($"Navigating to {screen.RelativeRoute}");
-			Debug.WriteLine($"\tUse stack: {string.Join(", ", result.Select(x => x.ToString()))}");
 
-			await UpdateNavigationStack(result);
+			await UpdateNavigationStack(currentStack => _navigationGraph.FindBestStack(currentStack, screenInstance).ToList());
 		}
 
 		public async Task Close()
 		{
-			if (_navigationStack.Count == 1)
+			Debug.WriteLine("Navigation: Close");
+
+			await UpdateNavigationStack(currentStack => CloseFrom(currentStack, currentStack.Count - 1));
+		}
+
+		public async Task Close(TViewModel viewModel)
+		{
+			if (viewModel == null)
+			{
+				throw new ArgumentNullException(nameof(viewModel));
+			}
+
+			Debug.WriteLine($"Navigation: Close {viewModel}");
+
+			//a screen already closed (second tap on its back button) is no longer in the stack: nothing to close
+			await UpdateNavigationStack(currentStack => CloseFrom(currentStack, currentStack.FindLastIndex(x => ReferenceEquals(x.ViewModelInstance, viewModel))));
+		}
+
+		private List<ScreenInstance<TViewModel>> CloseFrom(List<ScreenInstance<TViewModel>> currentStack, int index)
+		{
+			if (index < 0)
+			{
+				return null;
+			}
+
+			if (index == 0)
 			{
 				_presenterService.CloseApp();
 			}
 
-			List<ScreenInstance<TViewModel>> newStack = new(_navigationStack.Count - 1);
-			for (int i = 0 ; i < _navigationStack.Count - 1 ; i++)
-			{
-				newStack.Add(_navigationStack[i]);
-			}
-
-			Debug.WriteLine($"Navigation: Close");
-			Debug.WriteLine($"\tUse stack: {string.Join(", ", newStack.Select(x => x.ToString()))}");
-
-			await UpdateNavigationStack(newStack);
+			return currentStack.GetRange(0, index);
 		}
 
 		public Task Push(string route, ViewModelCreator<TViewModel> viewModelCreator)
@@ -94,52 +107,81 @@ namespace Xmf2.NavigationGraph.Core
 			throw new NotImplementedException();
 		}
 
-		private async Task UpdateNavigationStack(List<ScreenInstance<TViewModel>> newNavigationStack)
+		private Task UpdateNavigationStack(Func<List<ScreenInstance<TViewModel>>, List<ScreenInstance<TViewModel>>> buildNewNavigationStack)
 		{
+			TaskCompletionSource<bool> start = new();
+			Task navigation;
+
 			lock (_mutex)
 			{
-				if (_navigationInProgress != null && !_navigationInProgress.IsFinished)
+				List<ScreenInstance<TViewModel>> newNavigationStack = buildNewNavigationStack(_navigationStack);
+				if (newNavigationStack == null)
 				{
-					_navigationInProgress.Cancel();
-
-					_navigationStack.Clear();
-					_navigationStack.AddRange(_navigationInProgress.StackBeforeNavigation);
+					Debug.WriteLine("\tNothing to close");
+					return Task.CompletedTask;
 				}
 
-				_navigationInProgress = null;
+				Debug.WriteLine($"\tUse stack: {string.Join(", ", newNavigationStack.Select(x => x.ToString()))}");
+
+				//the presenter runs outside of the lock: while it creates the view models, _navigationStack already holds the stack it will display.
+				//The same request (double tap) would otherwise cancel the running navigation and create its view models a second time
+				if (_runningNavigation is { IsCompleted: false } && newNavigationStack.SequenceEqual(_navigationStack))
+				{
+					return _runningNavigation;
+				}
+
+				NavigationInProgress<TViewModel> previousNavigation = _navigationInProgress;
+				if (previousNavigation != null && previousNavigation.TryCancel())
+				{
+					//the presenter disposes the view models of a cancelled navigation, its screens must not be reused
+					newNavigationStack = newNavigationStack.ConvertAll(x => previousNavigation.HasPushed(x) ? new ScreenInstance<TViewModel>(x.Definition, x.Parameter, x.ViewModelCreator) : x);
+
+					_navigationStack.Clear();
+					_navigationStack.AddRange(previousNavigation.StackBeforeNavigation);
+				}
+
+				ScreenInstance<TViewModel>[] stackBeforeNavigation = _navigationStack.ToArray();
+				NavigationOperation<TViewModel> navigationOperation = new();
+
+				int commonIndexLimit = 0;
+				for (;
+				     commonIndexLimit < newNavigationStack.Count &&
+				     commonIndexLimit < _navigationStack.Count &&
+				     newNavigationStack[commonIndexLimit] == _navigationStack[commonIndexLimit] ;
+				     ++commonIndexLimit) { }
+
+				//generate pop instructions
+				for (int i = _navigationStack.Count - 1 ; i >= commonIndexLimit ; i--)
+				{
+					navigationOperation.Add(new PopAction<TViewModel>(_navigationStack[i]));
+				}
+
+				_navigationStack.RemoveRange(commonIndexLimit, _navigationStack.Count - commonIndexLimit);
+
+				//generate push instructions
+				if (_navigationStack.Capacity < newNavigationStack.Count)
+				{
+					_navigationStack.Capacity = newNavigationStack.Count + 3; //Why 3 ? because we could use some margin and 3 is a nice small number !
+				}
+
+				for (int i = commonIndexLimit ; i < newNavigationStack.Count ; ++i)
+				{
+					navigationOperation.Add(new PushAction<TViewModel>(newNavigationStack[i]));
+					_navigationStack.Add(newNavigationStack[i]);
+				}
+
+				NavigationInProgress<TViewModel> navigationInProgress = _navigationInProgress = new(stackBeforeNavigation, navigationOperation);
+				navigation = _runningNavigation = ApplyNavigation(navigationOperation, navigationInProgress, start.Task);
 			}
 
-			_navigationInProgress = new(_navigationStack.ToArray());
+			start.SetResult(true);
+			return navigation;
+		}
 
-			NavigationOperation<TViewModel> navigationOperation = new();
-			int commonIndexLimit = 0;
-			for (;
-			     commonIndexLimit < newNavigationStack.Count &&
-			     commonIndexLimit < _navigationStack.Count &&
-			     newNavigationStack[commonIndexLimit] == _navigationStack[commonIndexLimit] ;
-			     ++commonIndexLimit) { }
-
-			//generate pop instructions
-			for (int i = _navigationStack.Count - 1 ; i >= commonIndexLimit ; i--)
-			{
-				navigationOperation.Add(new PopAction<TViewModel>(_navigationStack[i]));
-			}
-
-			_navigationStack.RemoveRange(commonIndexLimit, _navigationStack.Count - commonIndexLimit);
-
-			//generate push instructions
-			if (_navigationStack.Capacity < newNavigationStack.Count)
-			{
-				_navigationStack.Capacity = newNavigationStack.Count + 3; //Why 3 ? because we could use some margin and 3 is a nice small number !
-			}
-
-			for (int i = commonIndexLimit ; i < newNavigationStack.Count ; ++i)
-			{
-				navigationOperation.Add(new PushAction<TViewModel>(newNavigationStack[i]));
-				_navigationStack.Add(newNavigationStack[i]);
-			}
-
-			await _presenterService.UpdateNavigation(navigationOperation, _navigationInProgress);
+		private async Task ApplyNavigation(NavigationOperation<TViewModel> navigationOperation, NavigationInProgress<TViewModel> navigationInProgress, Task start)
+		{
+			await start;
+			await _presenterService.UpdateNavigation(navigationOperation, navigationInProgress);
 		}
 	}
 }
